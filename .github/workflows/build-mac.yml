@@ -1,0 +1,50 @@
+name: Build Mac input method
+
+on:
+  push:
+    branches: [claude/zhuyin-ime-similar-char-recognition-47ah5e, main]
+    paths:
+      - 'mac/**'
+      - '.github/workflows/build-mac.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: mac/McBopomofo
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "^26.1.1"
+
+      - name: Build and test engine
+        run: |
+          cmake -DENABLE_TEST=1 -S Source -B build-engine
+          cmake --build build-engine -j
+          ctest --test-dir build-engine --output-on-failure
+
+      - name: Build McBopomofoInstaller
+        run: |
+          xcodebuild -project McBopomofo.xcodeproj -scheme McBopomofoInstaller \
+            -configuration Release -derivedDataPath build-xcode clean build
+
+      - name: Package installer
+        run: |
+          APP=$(find build-xcode/Build/Products/Release -maxdepth 1 -name 'McBopomofoInstaller.app' | head -1)
+          test -n "$APP"
+          ls -la "$APP/Contents/Resources/McBopomofo.app/Contents/Resources/context-lm.bin"
+          mkdir -p dist
+          ditto -c -k --keepParent "$APP" dist/McBopomofoInstaller.zip
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: McBopomofoInstaller
+          path: mac/McBopomofo/dist/McBopomofoInstaller.zip
+          retention-days: 30
