@@ -49,7 +49,7 @@ class Lexicon:
 class Params:
     beam: int = 30
     w_freq: float = 0.1   # 每個詞加上 w_freq × log10(詞庫頻率 + 1)
-    w_seg: float = -0.5   # 每多切一段的加分（負值＝偏好長詞）
+    w_seg: float = -1.0   # 每多切一段的加分（負值＝偏好長詞）
 
 
 @dataclass

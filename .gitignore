@@ -5,3 +5,4 @@ results/*.tmp
 target/
 data/dev.tsv
 results/dev/
+corpus/
