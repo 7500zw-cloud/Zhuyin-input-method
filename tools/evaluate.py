@@ -12,7 +12,7 @@ import csv
 import json
 import sys
 
-from testset import CATEGORIES, load_testset, normalize
+from testset import TESTSET, load_testset, normalize
 
 
 def edit_distance(a, b):
@@ -63,11 +63,12 @@ def load_predictions(path):
 def main():
     ap = argparse.ArgumentParser(description="為輸入法轉換結果評分")
     ap.add_argument("predictions")
+    ap.add_argument("--testset", default=TESTSET, help="測試集路徑（預設 data/testset.tsv）")
     ap.add_argument("--json", help="另存完整結果為 JSON")
     ap.add_argument("--quiet", action="store_true", help="不列出錯誤句子")
     args = ap.parse_args()
 
-    rows = load_testset()
+    rows = load_testset(args.testset)
     preds = load_predictions(args.predictions)
     missing = [r["id"] for r in rows if r["id"] not in preds]
     if missing:
@@ -78,7 +79,7 @@ def main():
     total = summarize(list(per_row.values()))
     by_cat = {
         c: summarize([per_row[r["id"]] for r in rows if r["category"] == c])
-        for c in CATEGORIES if any(r["category"] == c for r in rows)
+        for c in dict.fromkeys(r["category"] for r in rows)
     }
 
     print(f"{'分類':<6}{'句數':>5}{'整句':>8}{'字':>8}{'重點詞':>8}{'掉陷阱':>6}")
