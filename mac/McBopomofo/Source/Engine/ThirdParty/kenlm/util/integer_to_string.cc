@@ -48,6 +48,15 @@ Which is based on: http://0x80.pl/snippets/asm/sse-utoa.c
 #include <cassert>
 #include <stdint.h>
 
+// Zhuyin-input-method: intrinsics headers moved out of namespace util, since
+// Clang modules (enabled by Xcode) reject imports inside a namespace.
+#if defined(__amd64) || defined(_M_X64) || (defined(__SSE2__) && (defined(_M_IX86) || defined(i386)))
+#include <emmintrin.h>
+#ifdef _MSC_VER
+#include "intrin.h"
+#endif
+#endif
+
 namespace util {
 
 namespace {
@@ -69,12 +78,6 @@ const char gDigitsLut[200] = {
 // Modifications: (1) fix incorrect digits (2) accept all ranges (3) write to user provided buffer.
 
 #if defined(__amd64) || defined(_M_X64) || (defined(__SSE2__) && (defined(_M_IX86) || defined(i386)))
-
-#include <emmintrin.h>
-
-#ifdef _MSC_VER
-#include "intrin.h"
-#endif
 
 #ifdef _MSC_VER
 #define ALIGN_PRE __declspec(align(16))
