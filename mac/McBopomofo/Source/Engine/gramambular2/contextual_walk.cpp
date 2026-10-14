@@ -208,10 +208,19 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
     }
   }
 
+  const std::vector<std::string> rightContext =
+      SplitCodePoints(options.rightContext);
   const Hypothesis* best = nullptr;
   double bestScore = -std::numeric_limits<double>::infinity();
   for (const Hypothesis& h : chart[readingLen]) {
-    double s = h.score + model.endSentence(h.state);
+    double s = h.score;
+    ContextModel::State state = h.state;
+    for (const auto& c : rightContext) {
+      ContextModel::State out;
+      s += model.score(state, c, &out);
+      state = out;
+    }
+    s += model.endSentence(state);
     if (s > bestScore) {
       bestScore = s;
       best = &h;

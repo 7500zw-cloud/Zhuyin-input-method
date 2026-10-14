@@ -25,6 +25,7 @@
 #define SRC_ENGINE_GRAMAMBULAR2_CONTEXTUAL_WALK_H_
 
 #include <cstddef>
+#include <string>
 
 #include "context_model.h"
 #include "reading_grid.h"
@@ -40,6 +41,10 @@ struct ContextualWalkOptions {
   double unigramWeight = 0.4;
   // Added once per node on the path. Negative values favor longer phrases.
   double nodePenalty = 0.0;
+  // Text known to follow the grid, such as a Latin letter that is about to be
+  // typed right after the composition. It is scored after every complete path
+  // so that, e.g., 跟 can win over 根 before an English word.
+  std::string rightContext;
 };
 
 // Finds the most likely path through the grid by scoring whole sentences with

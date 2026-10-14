@@ -125,6 +125,8 @@ BigramModel SampleContext() {
       {{"定", "型"}, -0.5},
       // A model may happen to prefer a symbol it cannot really judge.
       {{"訂", "︽"}, -0.1},
+      // 定 is more likely than 訂 before a Latin letter.
+      {{"定", "K"}, -0.5},
   });
 }
 
@@ -201,6 +203,20 @@ TEST(ContextualWalkTest, OverriddenUnrankableValueIsKept) {
   auto result = ContextualWalk(grid, SampleContext());
   ASSERT_EQ(result.nodes.size(), 2);
   EXPECT_EQ(result.nodes[1]->value(), "︽");
+}
+
+TEST(ContextualWalkTest, RightContextIsScored) {
+  // With nothing after it, 訂 keeps its better unigram score; a letter known to
+  // follow the composition lets the model pick 定 instead.
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄉㄧㄥˋ"));
+  EXPECT_EQ(Joined(ContextualWalk(grid, SampleContext())), "訂");
+
+  ContextualWalkOptions options;
+  options.rightContext = "K";
+  auto result = ContextualWalk(grid, SampleContext(), options);
+  EXPECT_EQ(Joined(result), "定");
+  EXPECT_EQ(result.totalReadings, 1);
 }
 
 TEST(ContextualWalkTest, NodeCountsAreReported) {

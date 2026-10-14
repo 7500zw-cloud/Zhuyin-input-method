@@ -384,6 +384,7 @@ InputMode InputModePlainBopomofo = @"org.openvanilla.inputmethod.McBopomofo.Plai
         // do nothing if backspace is pressed -- we ignore the key
     } else if (input.isCapsLockOn) {
         // process all possible combination, we hope.
+        [self _rewalkBeforeCommitFollowedBy:input.inputText state:state stateCallback:stateCallback];
         [self clear];
         InputStateEmpty *emptyState = [[InputStateEmpty alloc] init];
         stateCallback(emptyState);
@@ -812,6 +813,7 @@ InputMode InputModePlainBopomofo = @"org.openvanilla.inputmethod.McBopomofo.Plai
             }
         } else {
             if ([state isKindOfClass:[InputStateNotEmpty class]]) {
+                [self _rewalkBeforeCommitFollowedBy:input.inputText state:state stateCallback:stateCallback];
                 [self clear];
                 InputStateEmpty *empty = [[InputStateEmpty alloc] init];
                 stateCallback(empty);
@@ -2536,18 +2538,43 @@ InputMode InputModePlainBopomofo = @"org.openvanilla.inputmethod.McBopomofo.Plai
 
 - (void)_walk
 {
+    [self _walkFollowedBy:""];
+}
+
+- (void)_walkFollowedBy:(const std::string &)rightContext
+{
     // In the McBopomofo mode, choose words by scoring whole sentences with the
     // character language model when it is available. The plain Bopomofo mode
     // keeps the unigram walk, since its users pick every character themselves.
     McBopomofo::KenLMContextModel *contextModel = LanguageModelManager.contextModel;
     if (contextModel != nullptr && Preferences.contextualConversionEnabled && [_inputMode isEqualToString:InputModeBopomofo]) {
-        auto result = Formosa::Gramambular2::ContextualWalk(*_grid, *contextModel);
+        Formosa::Gramambular2::ContextualWalkOptions options;
+        options.rightContext = rightContext;
+        auto result = Formosa::Gramambular2::ContextualWalk(*_grid, *contextModel, options);
         if (result.totalReadings == _grid->length()) {
             _latestWalk = std::move(result);
             return;
         }
     }
     _latestWalk = _grid->walk();
+}
+
+// Called right before the composition is committed because a Latin letter or
+// digit is typed straight into the document (Caps Lock, or Shift with the
+// "output uppercase letters" option). Re-chooses the words knowing what
+// follows, e.g. 跟 rather than 根 in "NIGHT跟KNIGHT", and shows the result so
+// that it is what gets committed.
+- (void)_rewalkBeforeCommitFollowedBy:(NSString *)text state:(InputState *)state stateCallback:(void (^)(InputState *))stateCallback
+{
+    if (![state isKindOfClass:[InputStateInputting class]] || _grid->length() == 0 || text.length == 0) {
+        return;
+    }
+    unichar c = [text characterAtIndex:0];
+    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
+        return;
+    }
+    [self _walkFollowedBy:std::string(1, (char)c)];
+    stateCallback([self buildInputtingState]);
 }
 
 - (InputStateChoosingCandidate *)_buildCandidateStateFromInputtingState:(InputStateInputting *)inputting useVerticalMode:(BOOL)useVerticalMode
