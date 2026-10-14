@@ -470,6 +470,16 @@ double ReadingGrid::Node::score() const {
   }
 }
 
+std::shared_ptr<ReadingGrid::Node> ReadingGrid::Node::copyWithUnigramAt(
+    size_t index) const {
+  auto copy = std::make_shared<Node>(*this);
+  if (index < copy->unigrams_.size()) {
+    copy->unigramIter_ = std::next(copy->unigrams_.begin(),
+                                   static_cast<std::ptrdiff_t>(index));
+  }
+  return copy;
+}
+
 bool ReadingGrid::Node::isOverridden() const {
   return overrideType_ != OverrideType::kNone;
 }

@@ -1,0 +1,65 @@
+// Copyright (c) 2026 Zhuyin-input-method contributors.
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without
+// restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+#ifndef SRC_ENGINE_GRAMAMBULAR2_CONTEXTUAL_WALK_H_
+#define SRC_ENGINE_GRAMAMBULAR2_CONTEXTUAL_WALK_H_
+
+#include <cstddef>
+
+#include "context_model.h"
+#include "reading_grid.h"
+
+namespace Formosa::Gramambular2 {
+
+struct ContextualWalkOptions {
+  // Number of partial paths kept at each reading position.
+  size_t beamWidth = 30;
+  // Only the top-scoring unigrams of each node are considered.
+  size_t maxUnigramsPerNode = 30;
+  // Weight of the node's unigram score (a log10 probability).
+  double unigramWeight = 0.4;
+  // Added once per node on the path. Negative values favor longer phrases.
+  double nodePenalty = 0.0;
+};
+
+// Finds the most likely path through the grid by scoring whole sentences with
+// a ContextModel, choosing both the segmentation and, unlike
+// ReadingGrid::walk(), which unigram of each node to use.
+//
+// Overridden nodes are respected: a node overridden with
+// kOverrideValueWithHighScore always keeps its value and receives its
+// overriding score, so the walk passes through it just as ReadingGrid::walk()
+// does; a soft override (kOverrideValueWithScoreFromTopUnigram) keeps its
+// value but competes on normal scores.
+//
+// Returned nodes are the grid's own nodes when their current unigram was
+// chosen, or copies (Node::copyWithUnigramAt) when another unigram was, so the
+// grid itself is never modified.
+ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
+                                       const ContextModel& model,
+                                       const ContextualWalkOptions& options =
+                                           ContextualWalkOptions());
+
+}  // namespace Formosa::Gramambular2
+
+#endif  // SRC_ENGINE_GRAMAMBULAR2_CONTEXTUAL_WALK_H_

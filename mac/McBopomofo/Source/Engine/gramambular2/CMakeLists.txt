@@ -4,7 +4,8 @@ project(gramambular2)
 set(CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-add_library(gramambular2_lib language_model.h reading_grid.h reading_grid.cpp)
+add_library(gramambular2_lib language_model.h reading_grid.h reading_grid.cpp
+        context_model.h contextual_walk.h contextual_walk.cpp)
 
 if (ENABLE_CLANG_TIDY)
     set_target_properties(gramambular2_lib PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
@@ -17,7 +18,7 @@ if (ENABLE_TEST)
         endif()
 
         # Test target declarations.
-        add_executable(gramambular2_test reading_grid_test.cpp)
+        add_executable(gramambular2_test reading_grid_test.cpp contextual_walk_test.cpp)
         target_include_directories(gramambular2_test PRIVATE "${GMOCK_INCLUDE_DIRS}" "${GTEST_INCLUDE_DIRS}")
         target_link_libraries(gramambular2_test GTest::gtest_main gramambular2_lib)
         include(GoogleTest)

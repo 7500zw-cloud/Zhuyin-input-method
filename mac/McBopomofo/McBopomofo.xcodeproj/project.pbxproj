@@ -100,6 +100,11 @@
 		D4F0BBE1279AF8B30071253C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F0BBE0279AF8B30071253C /* AppDelegate.swift */; };
 		D4F0BBE4279B08900071253C /* BundleTranslocate.m in Sources */ = {isa = PBXBuildFile; fileRef = D4F0BBE3279B08900071253C /* BundleTranslocate.m */; };
 		D4F0BBE7279B14C20071253C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = D4F0BBE9279B14C20071253C /* Credits.rtf */; };
+		7138BF983F950B4F6933E495 /* contextual_walk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 805DDC11A0B9A980CFBEDE40 /* contextual_walk.cpp */; };
+		DBBBFCB2B76309C326A0954F /* KenLMContextModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13028DEB4229BABB79568B62 /* KenLMContextModel.cpp */; };
+		656D1E0D4E7C46AA33FBD924 /* KenLMAmalgamation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B36F5FD966AD3FBED1678BB0 /* KenLMAmalgamation.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		33A92B53791E483E7EE327C3 /* KenLMAmalgamation2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 723A6754E3CF21455B6F288B /* KenLMAmalgamation2.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		22023B0A0BE2BDD858507D28 /* context-lm.bin in Resources */ = {isa = PBXBuildFile; fileRef = 20C98E749C979BFEE17EDC46 /* context-lm.bin */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -258,6 +263,14 @@
 		D4F0BBE8279B14C20071253C /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Base; path = Base.lproj/Credits.rtf; sourceTree = "<group>"; };
 		D4F0BBEA279B14CB0071253C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		D4F0BBEB279B14D00071253C /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = "zh-Hant"; path = "zh-Hant.lproj/Credits.rtf"; sourceTree = "<group>"; };
+		721FA82D9F62C2E9F762D2F6 /* context_model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = context_model.h; sourceTree = "<group>"; };
+		776720F736CD608F57F545A0 /* contextual_walk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contextual_walk.h; sourceTree = "<group>"; };
+		805DDC11A0B9A980CFBEDE40 /* contextual_walk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = contextual_walk.cpp; sourceTree = "<group>"; };
+		5DE29ECD3D0D4B8DB06B8F13 /* KenLMContextModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KenLMContextModel.h; sourceTree = "<group>"; };
+		13028DEB4229BABB79568B62 /* KenLMContextModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KenLMContextModel.cpp; sourceTree = "<group>"; };
+		B36F5FD966AD3FBED1678BB0 /* KenLMAmalgamation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KenLMAmalgamation.cpp; sourceTree = "<group>"; };
+		723A6754E3CF21455B6F288B /* KenLMAmalgamation2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KenLMAmalgamation2.cpp; sourceTree = "<group>"; };
+		20C98E749C979BFEE17EDC46 /* context-lm.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "context-lm.bin"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -392,6 +405,10 @@
 				6ADF5B172BA513E000577D98 /* UTF8Helper.h */,
 				6A833E502F0A0FB30086AD0C /* VariantAnnotator.h */,
 				6A833E512F0A0FB30086AD0C /* VariantAnnotator.cpp */,
+				5DE29ECD3D0D4B8DB06B8F13 /* KenLMContextModel.h */,
+				13028DEB4229BABB79568B62 /* KenLMContextModel.cpp */,
+				B36F5FD966AD3FBED1678BB0 /* KenLMAmalgamation.cpp */,
+				723A6754E3CF21455B6F288B /* KenLMAmalgamation2.cpp */,
 			);
 			path = Engine;
 			sourceTree = "<group>";
@@ -431,6 +448,7 @@
 				6A833E4B2F0A0F7F0086AD0C /* bpmfvs-variants.txt */,
 				6A38BBF615FC117A00A8A51F /* data.txt */,
 				6AD7CBC715FE555000691B5B /* data-plain-bpmf.txt */,
+				20C98E749C979BFEE17EDC46 /* context-lm.bin */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -441,6 +459,9 @@
 				6A4F5F912879E838008C4307 /* reading_grid.h */,
 				6A4F5F922879E838008C4307 /* language_model.h */,
 				6A4F5F932879E838008C4307 /* reading_grid.cpp */,
+				721FA82D9F62C2E9F762D2F6 /* context_model.h */,
+				776720F736CD608F57F545A0 /* contextual_walk.h */,
+				805DDC11A0B9A980CFBEDE40 /* contextual_walk.cpp */,
 			);
 			path = gramambular2;
 			sourceTree = "<group>";
@@ -695,6 +716,7 @@
 				6AD7CBC815FE555000691B5B /* data-plain-bpmf.txt in Resources */,
 				6A187E2616004C5900466B2E /* MainMenu.xib in Resources */,
 				D47D73A827A6C84F00255A50 /* associated-phrases-v2.txt in Resources */,
+				22023B0A0BE2BDD858507D28 /* context-lm.bin in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -764,6 +786,10 @@
 				6ADF5B192BA513E000577D98 /* AssociatedPhrasesV2.cpp in Sources */,
 				6ADF5B1B2BA513E000577D98 /* UTF8Helper.cpp in Sources */,
 				D41355D8278D74B5005E5CBD /* LanguageModelManager.mm in Sources */,
+				7138BF983F950B4F6933E495 /* contextual_walk.cpp in Sources */,
+				DBBBFCB2B76309C326A0954F /* KenLMContextModel.cpp in Sources */,
+				656D1E0D4E7C46AA33FBD924 /* KenLMAmalgamation.cpp in Sources */,
+				33A92B53791E483E7EE327C3 /* KenLMAmalgamation2.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1093,6 +1119,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "Source/McBopomofo-Info.plist";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/Source/Engine/ThirdParty/kenlm";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1148,6 +1175,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "Source/McBopomofo-Info.plist";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/Source/Engine/ThirdParty/kenlm";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

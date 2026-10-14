@@ -1,0 +1,1731 @@
+{
+ "total": {
+  "sentences": 206,
+  "exact": 0.7669902912621359,
+  "char_acc": 0.9677245831091985,
+  "focus": 0.8398058252427184,
+  "traps": 17
+ },
+ "by_category": {
+  "seg": {
+   "sentences": 30,
+   "exact": 0.9,
+   "char_acc": 0.9896193771626297,
+   "focus": 0.9,
+   "traps": 0
+  },
+  "homo": {
+   "sentences": 51,
+   "exact": 0.5882352941176471,
+   "char_acc": 0.9282511210762332,
+   "focus": 0.6470588235294118,
+   "traps": 13
+  },
+  "func": {
+   "sentences": 14,
+   "exact": 0.9285714285714286,
+   "char_acc": 0.9900990099009901,
+   "focus": 0.9285714285714286,
+   "traps": 0
+  },
+  "pron": {
+   "sentences": 6,
+   "exact": 0.3333333333333333,
+   "char_acc": 0.9428571428571428,
+   "focus": 0.3333333333333333,
+   "traps": 4
+  },
+  "long": {
+   "sentences": 20,
+   "exact": 0.9,
+   "char_acc": 0.9903381642512077,
+   "focus": 1.0,
+   "traps": 0
+  },
+  "term": {
+   "sentences": 20,
+   "exact": 0.8,
+   "char_acc": 0.9818181818181818,
+   "focus": 1.0,
+   "traps": 0
+  },
+  "name": {
+   "sentences": 15,
+   "exact": 1.0,
+   "char_acc": 1.0,
+   "focus": 1.0,
+   "traps": 0
+  },
+  "chat": {
+   "sentences": 20,
+   "exact": 0.7,
+   "char_acc": 0.9457364341085271,
+   "focus": 0.8,
+   "traps": 0
+  },
+  "num": {
+   "sentences": 10,
+   "exact": 0.6,
+   "char_acc": 0.9545454545454546,
+   "focus": 0.8,
+   "traps": 0
+  },
+  "base": {
+   "sentences": 20,
+   "exact": 0.85,
+   "char_acc": 0.9822485207100592,
+   "focus": 0.95,
+   "traps": 0
+  }
+ },
+ "rows": {
+  "seg-001": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 14,
+   "focus": true,
+   "trap": false,
+   "output": "請先跟我討論好用的定義是什麼"
+  },
+  "seg-002": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "他提出的建議是對的"
+  },
+  "seg-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "這個字的意思是什麼"
+  },
+  "seg-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "我不知道他的目的是什麼"
+  },
+  "seg-005": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "我的意見是不要去"
+  },
+  "seg-006": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "他的專業是設計"
+  },
+  "seg-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這次活動的主題是環保"
+  },
+  "seg-008": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這個問題的重點是時間"
+  },
+  "seg-009": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我最大的優點是有耐心"
+  },
+  "seg-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "會議的結論是延期"
+  },
+  "seg-011": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "他的興趣是攝影"
+  },
+  "seg-012": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "他說明天會來"
+  },
+  "seg-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "從前天開始就一直下雨"
+  },
+  "seg-014": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我們在研究生命的起源"
+  },
+  "seg-015": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "這些研究生命運都不太好"
+  },
+  "seg-016": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 15,
+   "focus": false,
+   "trap": false,
+   "output": "結婚的合尚未結婚的人都可以參加"
+  },
+  "seg-017": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "他從小學會了游泳"
+  },
+  "seg-018": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "他把手機放在桌上"
+  },
+  "seg-019": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "他是學生物的"
+  },
+  "seg-020": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "大學生活很精彩"
+  },
+  "seg-021": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我已經習慣一個人生活"
+  },
+  "seg-022": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": false,
+   "trap": false,
+   "output": "這間公司的人士很複雜"
+  },
+  "seg-023": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "各界人士都來參加"
+  },
+  "seg-024": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "他已經成為一名老師了"
+  },
+  "seg-025": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "校長說這件事要從長計議"
+  },
+  "seg-026": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "物理學家正在研究這個現象"
+  },
+  "seg-027": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "會議改到下週三舉行"
+  },
+  "seg-028": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "你可以幫我查一下資料嗎"
+  },
+  "seg-029": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "我想要買一台新的筆記型電腦"
+  },
+  "seg-030": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 11,
+   "focus": false,
+   "trap": false,
+   "output": "這個問題我們下次在討論"
+  },
+  "homo-001": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 8,
+   "focus": false,
+   "trap": true,
+   "output": "人民有選擇的權力"
+  },
+  "homo-002": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "總統的權力很大"
+  },
+  "homo-003": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 10,
+   "focus": false,
+   "trap": false,
+   "output": "數學考試要被很多公視"
+  },
+  "homo-004": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": false,
+   "trap": false,
+   "output": "他整天都在處理公視"
+  },
+  "homo-005": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 9,
+   "focus": false,
+   "trap": false,
+   "output": "敵軍在清晨發動公視"
+  },
+  "homo-006": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這次期中考我考的不錯"
+  },
+  "homo-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "其中有三個人沒有來"
+  },
+  "homo-008": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 6,
+   "focus": false,
+   "trap": true,
+   "output": "我心理很難過"
+  },
+  "homo-009": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "他大學念的是心理系"
+  },
+  "homo-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "這是不爭的事實"
+  },
+  "homo-011": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 8,
+   "focus": false,
+   "trap": true,
+   "output": "老師事實給予提醒"
+  },
+  "homo-012": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "水是生命的必需品"
+  },
+  "homo-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "你必須準時到"
+  },
+  "homo-014": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這部電影的情節很感人"
+  },
+  "homo-015": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": false,
+   "trap": true,
+   "output": "他有嚴重的自卑情節"
+  },
+  "homo-016": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "他是個很有實力的選手"
+  },
+  "homo-017": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": false,
+   "trap": true,
+   "output": "老師舉了一個實力說明"
+  },
+  "homo-018": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "他終於實現了夢想"
+  },
+  "homo-019": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 7,
+   "focus": false,
+   "trap": true,
+   "output": "這個任務有實現"
+  },
+  "homo-020": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "他的反應很快"
+  },
+  "homo-021": {
+   "exact": false,
+   "char_errors": 3,
+   "chars": 11,
+   "focus": false,
+   "trap": true,
+   "output": "民眾像是府反應這個問題"
+  },
+  "homo-022": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "車禍發生在昨天晚上"
+  },
+  "homo-023": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 7,
+   "focus": false,
+   "trap": true,
+   "output": "他代表大家發生"
+  },
+  "homo-024": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "他的工作經歷很豐富"
+  },
+  "homo-025": {
+   "exact": false,
+   "char_errors": 3,
+   "chars": 10,
+   "focus": false,
+   "trap": true,
+   "output": "我已經沒有經歷在做了"
+  },
+  "homo-026": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "失敗的原因很多"
+  },
+  "homo-027": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 9,
+   "focus": false,
+   "trap": false,
+   "output": "他每天都會關心實是"
+  },
+  "homo-028": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "我們做事要實事求是"
+  },
+  "homo-029": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "時勢造英雄"
+  },
+  "homo-030": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "會議正在進行中"
+  },
+  "homo-031": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 8,
+   "focus": false,
+   "trap": true,
+   "output": "這條路進行大行車"
+  },
+  "homo-032": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這件事有很重要的意義"
+  },
+  "homo-033": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 7,
+   "focus": false,
+   "trap": true,
+   "output": "有人提出意義嗎"
+  },
+  "homo-034": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "這套獎勵機制很有效"
+  },
+  "homo-035": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": false,
+   "trap": true,
+   "output": "他的機制化解了危機"
+  },
+  "homo-036": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 15,
+   "focus": true,
+   "trap": false,
+   "output": "醫生說我需要多休息才能恢復體力"
+  },
+  "homo-037": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 11,
+   "focus": false,
+   "trap": true,
+   "output": "這本書的編排體力很清楚"
+  },
+  "homo-038": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "他在電腦上寫程式"
+  },
+  "homo-039": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "高雄市一個很熱鬧的城市"
+  },
+  "homo-040": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": false,
+   "trap": false,
+   "output": "銀行行掌明天會來視察"
+  },
+  "homo-041": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "他的學歷很高"
+  },
+  "homo-042": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "這是個好主意"
+  },
+  "homo-043": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "他的成績進步很多"
+  },
+  "homo-044": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "這個方程式很難解"
+  },
+  "homo-045": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "雙方終於達成協議"
+  },
+  "homo-046": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "這家公司的產品品質很好"
+  },
+  "homo-047": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "他的實驗結果發表在期刊上"
+  },
+  "homo-048": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 14,
+   "focus": true,
+   "trap": false,
+   "output": "他在會議上提出了一個新的構想"
+  },
+  "homo-049": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "大家都在討論這個議題"
+  },
+  "homo-050": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "這家店明天公休"
+  },
+  "homo-051": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "這場比賽的觀眾很多"
+  },
+  "func-001": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "你明天再來一次"
+  },
+  "func-002": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "我在家裡等你"
+  },
+  "func-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "我在做功課"
+  },
+  "func-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "這本書的作者是誰"
+  },
+  "func-005": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "他跑得很快"
+  },
+  "func-006": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "你要去哪裡"
+  },
+  "func-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "我已經吃過了"
+  },
+  "func-008": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "以前我常常來這裡"
+  },
+  "func-009": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "他長得很像他爸爸"
+  },
+  "func-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "大象的鼻子很長"
+  },
+  "func-011": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "你不要再說了"
+  },
+  "func-012": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "除了他以外大家都到了"
+  },
+  "func-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我對這個結果感到意外"
+  },
+  "func-014": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": false,
+   "trap": false,
+   "output": "你先把功課做完在去玩"
+  },
+  "pron-001": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 12,
+   "focus": false,
+   "trap": true,
+   "output": "我媽媽說他今天會晚點回家"
+  },
+  "pron-002": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 11,
+   "focus": false,
+   "trap": true,
+   "output": "姊姊跟他男朋友去看電影"
+  },
+  "pron-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我哥哥說他明天要出國"
+  },
+  "pron-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "爸爸把他的車子賣掉了"
+  },
+  "pron-005": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 13,
+   "focus": false,
+   "trap": true,
+   "output": "這隻小狗很可愛他很喜歡玩球"
+  },
+  "pron-006": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 14,
+   "focus": false,
+   "trap": true,
+   "output": "這本書很好看我已經把他看完了"
+  },
+  "long-001": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "他在銀行工作"
+  },
+  "long-002": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "颱風來襲學校宣布停課"
+  },
+  "long-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "這位歌手的新專輯銷量很好"
+  },
+  "long-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 14,
+   "focus": true,
+   "trap": false,
+   "output": "太陽能板可以把光能轉換成電能"
+  },
+  "long-005": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "請把窗戶打開讓空氣流通"
+  },
+  "long-006": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "這個工廠在製造汽車零件"
+  },
+  "long-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "消費者對這個產品很滿意"
+  },
+  "long-008": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "公司明年要擴大招募"
+  },
+  "long-009": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "他對歷史很有興趣"
+  },
+  "long-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "他每天早上都會晨跑"
+  },
+  "long-011": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "冬天的時候要多穿一點衣服"
+  },
+  "long-012": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "這到菜的味道很特別"
+  },
+  "long-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 16,
+   "focus": true,
+   "trap": false,
+   "output": "為了準備考試他每天都在圖書館讀書"
+  },
+  "long-014": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "股市今天大漲投資人都很開心"
+  },
+  "long-015": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "這作橋的結構很穩固"
+  },
+  "long-016": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "植物需要陽光才能生長"
+  },
+  "long-017": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "鄉下的空氣很新鮮"
+  },
+  "long-018": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "他的工作態度很認真"
+  },
+  "long-019": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這篇文章的觀點很新穎"
+  },
+  "long-020": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "你要對自己的行為負責"
+  },
+  "term-001": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這段程式碼有一個錯誤"
+  },
+  "term-002": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "請先備份資料庫在更新系統"
+  },
+  "term-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "這個演算法的時間複雜度很高"
+  },
+  "term-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "我們要用機器學習來分析數據"
+  },
+  "term-005": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "請把檔案上傳到雲端硬碟"
+  },
+  "term-006": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "這個網站需要登入才能使用"
+  },
+  "term-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 14,
+   "focus": true,
+   "trap": false,
+   "output": "他在社群媒體上分享了一張照片"
+  },
+  "term-008": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "輸入法的選字功能很重要"
+  },
+  "term-009": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這個軟體可以免費下在"
+  },
+  "term-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "記得定期更新密碼"
+  },
+  "term-011": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "伺服器目前無法連線"
+  },
+  "term-012": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "人工智慧正在改變我們的生活"
+  },
+  "term-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "請檢查網路連線是否正常"
+  },
+  "term-014": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這款遊戲的畫面很精緻"
+  },
+  "term-015": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "影片的解析度太低了"
+  },
+  "term-016": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我把簡報傳到群組理了"
+  },
+  "term-017": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "這隻手機的螢幕很大"
+  },
+  "term-018": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "請在表單上填寫你的電子郵件"
+  },
+  "term-019": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "量子電腦的運算速度非常快"
+  },
+  "term-020": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "手機的電池續航力不錯"
+  },
+  "name-001": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我下個月要去花蓮旅遊"
+  },
+  "name-002": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "他住在新竹科學園區附近"
+  },
+  "name-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "我們搭高鐵去高雄"
+  },
+  "name-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "日月潭的風景很美"
+  },
+  "name-005": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "阿里山的日出很有名"
+  },
+  "name-006": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "墾丁的海很漂亮"
+  },
+  "name-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "李白是唐朝有名的詩人"
+  },
+  "name-008": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "孔子是很偉大的教育家"
+  },
+  "name-009": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "我昨天在誠品書店買了兩本書"
+  },
+  "name-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "淡水的夕陽很美"
+  },
+  "name-011": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "宜蘭的溫泉很有名"
+  },
+  "name-012": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "基隆廟口的小吃很好吃"
+  },
+  "name-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "我想去九份老街走走"
+  },
+  "name-014": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "愛因斯坦提出了相對論"
+  },
+  "name-015": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "莎士比亞寫了很多劇本"
+  },
+  "chat-001": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "ㄟ你今天有空嗎"
+  },
+  "chat-002": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "好啦我知道了"
+  },
+  "chat-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 4,
+   "focus": true,
+   "trap": false,
+   "output": "真的假的"
+  },
+  "chat-004": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 8,
+   "focus": false,
+   "trap": false,
+   "output": "我等一下在打給你"
+  },
+  "chat-005": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "不好意思我持到了"
+  },
+  "chat-006": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "你吃飽了沒"
+  },
+  "chat-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "我先去洗澡喔"
+  },
+  "chat-008": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 8,
+   "focus": false,
+   "trap": false,
+   "output": "沒關係啦下次在約"
+  },
+  "chat-009": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 4,
+   "focus": true,
+   "trap": false,
+   "output": "你在幹嘛"
+  },
+  "chat-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "我快累死了"
+  },
+  "chat-011": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "這樣可以嗎"
+  },
+  "chat-012": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "謝謝你的幫忙"
+  },
+  "chat-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "哈哈好好笑"
+  },
+  "chat-014": {
+   "exact": false,
+   "char_errors": 2,
+   "chars": 8,
+   "focus": false,
+   "trap": false,
+   "output": "你到了跟我說醫生"
+  },
+  "chat-015": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "我覺得還好耶"
+  },
+  "chat-016": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "改天請你喝咖啡"
+  },
+  "chat-017": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 5,
+   "focus": false,
+   "trap": false,
+   "output": "晚安明天建"
+  },
+  "chat-018": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "我剛剛在開會沒看到訊息"
+  },
+  "chat-019": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "你要不要一起來"
+  },
+  "chat-020": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "我在路上了快到了"
+  },
+  "num-001": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "這本書三百五十元"
+  },
+  "num-002": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "我們般有二十八個學生"
+  },
+  "num-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "他今年四十二歲"
+  },
+  "num-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "會議在下午兩點半開始"
+  },
+  "num-005": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這動大樓有一百零一層"
+  },
+  "num-006": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 7,
+   "focus": false,
+   "trap": false,
+   "output": "我買了三今蘋果"
+  },
+  "num-007": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "一年有三百六十五天"
+  },
+  "num-008": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "他跑了五公里"
+  },
+  "num-009": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 12,
+   "focus": true,
+   "trap": false,
+   "output": "第一名可以拿到一萬元獎金"
+  },
+  "num-010": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 9,
+   "focus": false,
+   "trap": false,
+   "output": "這間房子大概三十平"
+  },
+  "base-001": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "現在已經是下午三點了"
+  },
+  "base-002": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "我們明天一起去吃飯"
+  },
+  "base-003": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "這是一個很重要的問題"
+  },
+  "base-004": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "你應該好好休息"
+  },
+  "base-005": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "這個字怎麼寫"
+  },
+  "base-006": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "我的電腦壞掉了"
+  },
+  "base-007": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "他把前都花光了"
+  },
+  "base-008": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 6,
+   "focus": true,
+   "trap": false,
+   "output": "今天天氣很好"
+  },
+  "base-009": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 13,
+   "focus": true,
+   "trap": false,
+   "output": "大家都很關心這次的選舉結果"
+  },
+  "base-010": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 11,
+   "focus": true,
+   "trap": false,
+   "output": "這部電影的主題曲很好聽"
+  },
+  "base-011": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 10,
+   "focus": true,
+   "trap": false,
+   "output": "他是一個很有原則的人"
+  },
+  "base-012": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "我還沒決定要不要去"
+  },
+  "base-013": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "這家店的老闆人很好"
+  },
+  "base-014": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "他最近在學日文"
+  },
+  "base-015": {
+   "exact": false,
+   "char_errors": 1,
+   "chars": 10,
+   "focus": false,
+   "trap": false,
+   "output": "外面在下大雨記得代傘"
+  },
+  "base-016": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 7,
+   "focus": true,
+   "trap": false,
+   "output": "他昨天才剛回國"
+  },
+  "base-017": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "我們應該要互相幫助"
+  },
+  "base-018": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 8,
+   "focus": true,
+   "trap": false,
+   "output": "這次的旅行很愉快"
+  },
+  "base-019": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 5,
+   "focus": true,
+   "trap": false,
+   "output": "那個人是誰"
+  },
+  "base-020": {
+   "exact": true,
+   "char_errors": 0,
+   "chars": 9,
+   "focus": true,
+   "trap": false,
+   "output": "大家都同意這個提議"
+  }
+ }
+}

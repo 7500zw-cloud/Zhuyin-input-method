@@ -28,6 +28,7 @@
 #import "McBopomofoLM.h"
 #import "UTF8Helper.h"
 #import "UserOverrideModel.h"
+#import "contextual_walk.h"
 #import "reading_grid.h"
 
 #import <algorithm>
@@ -2535,6 +2536,17 @@ InputMode InputModePlainBopomofo = @"org.openvanilla.inputmethod.McBopomofo.Plai
 
 - (void)_walk
 {
+    // In the McBopomofo mode, choose words by scoring whole sentences with the
+    // character language model when it is available. The plain Bopomofo mode
+    // keeps the unigram walk, since its users pick every character themselves.
+    McBopomofo::KenLMContextModel *contextModel = LanguageModelManager.contextModel;
+    if (contextModel != nullptr && Preferences.contextualConversionEnabled && [_inputMode isEqualToString:InputModeBopomofo]) {
+        auto result = Formosa::Gramambular2::ContextualWalk(*_grid, *contextModel);
+        if (result.totalReadings == _grid->length()) {
+            _latestWalk = std::move(result);
+            return;
+        }
+    }
     _latestWalk = _grid->walk();
 }
 

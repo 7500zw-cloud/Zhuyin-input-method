@@ -139,6 +139,13 @@ class ReadingGrid {
 
     [[nodiscard]] bool isOverridden() const;
 
+    [[nodiscard]] OverrideType overrideType() const { return overrideType_; }
+
+    // Returns a copy of this node whose current unigram is unigrams()[index].
+    // The override type is kept as is. Used by walks that choose among all of
+    // a node's unigrams (see contextual_walk.h) rather than taking the top one.
+    [[nodiscard]] std::shared_ptr<Node> copyWithUnigramAt(size_t index) const;
+
     void reset();
 
     bool selectOverrideUnigram(const std::string& value, OverrideType type);

@@ -37,6 +37,8 @@ static McBopomofo::McBopomofoLM gLanguageModelMcBopomofo;
 static McBopomofo::McBopomofoLM gLanguageModelPlainBopomofo;
 static McBopomofo::UserOverrideModel gUserOverrideModel(kUserOverrideModelCapacity, kObservedOverrideHalflife);
 static McBopomofo::VariantAnnotator gVariantAnnotator;
+static std::unique_ptr<McBopomofo::KenLMContextModel> gContextModel;
+static BOOL gContextModelLoadAttempted = NO;
 
 static NSString *const kUserDataTemplateName = @"template-data";
 static NSString *const kUserDataPlainBopomofoTemplateName = @"template-data-plain-bpmf";
@@ -83,6 +85,24 @@ static void LTLoadVariantAnnotatorData()
     }
 }
 
+static void LTLoadContextModel()
+{
+    if (gContextModelLoadAttempted) {
+        return;
+    }
+    gContextModelLoadAttempted = YES;
+    Class cls = NSClassFromString(@"McBopomofoInputMethodController");
+    NSString *dataPath = [[NSBundle bundleForClass:cls] pathForResource:@"context-lm" ofType:@"bin"];
+    if (dataPath == nil) {
+        NSLog(@"context-lm.bin not found; contextual conversion is disabled");
+        return;
+    }
+    gContextModel = McBopomofo::KenLMContextModel::Load(dataPath.UTF8String);
+    if (gContextModel == nullptr) {
+        NSLog(@"Failed to load %@; contextual conversion is disabled", dataPath);
+    }
+}
+
 + (void)loadDataModels
 {
     if (!gLanguageModelMcBopomofo.isDataModelLoaded()) {
@@ -101,6 +121,7 @@ static void LTLoadVariantAnnotatorData()
     if (!gVariantAnnotator.loaded()) {
         LTLoadVariantAnnotatorData();
     }
+    LTLoadContextModel();
 }
 
 + (void)loadDataModel:(InputMode)mode
@@ -115,6 +136,7 @@ static void LTLoadVariantAnnotatorData()
         if (!gVariantAnnotator.loaded()) {
             LTLoadVariantAnnotatorData();
         }
+        LTLoadContextModel();
     }
 
     if ([mode isEqualToString:InputModePlainBopomofo]) {
@@ -468,6 +490,11 @@ static void LTLoadVariantAnnotatorData()
 + (McBopomofo::VariantAnnotator *)variantAnnotator
 {
     return &gVariantAnnotator;
+}
+
++ (McBopomofo::KenLMContextModel *)contextModel
+{
+    return gContextModel.get();
 }
 
 + (BOOL)phraseReplacementEnabled

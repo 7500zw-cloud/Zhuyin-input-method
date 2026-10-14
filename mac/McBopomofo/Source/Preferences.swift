@@ -40,6 +40,7 @@ private let kChineseConversionEnabledKey = "ChineseConversionEnabled"
 private let kHalfWidthPunctuationEnabledKey = "HalfWidthPunctuationEnable"
 private let kEscToCleanInputBufferKey = "EscToCleanInputBuffer"
 private let kKeepReadingUponCompositionError = "KeepReadingUponCompositionError"
+private let kContextualConversionEnabledKey = "ContextualConversionEnabled"
 
 private let kCandidateTextFontName = "CandidateTextFontName"
 private let kCandidateKeyLabelFontName = "CandidateKeyLabelFontName"
@@ -231,6 +232,7 @@ class Preferences: NSObject {
             kHalfWidthPunctuationEnabledKey,
             kEscToCleanInputBufferKey,
             kKeepReadingUponCompositionError,
+            kContextualConversionEnabledKey,
             kCandidateTextFontName,
             kCandidateKeyLabelFontName,
             kCandidateKeys,
@@ -334,6 +336,11 @@ class Preferences: NSObject {
 
     @UserDefault(key: kKeepReadingUponCompositionError, defaultValue: false)
     @objc static var keepReadingUponCompositionError: Bool
+
+    /// Whether to choose words by scoring whole sentences with the character
+    /// language model (context-lm.bin) instead of only phrase frequencies.
+    @UserDefault(key: kContextualConversionEnabledKey, defaultValue: true)
+    @objc static var contextualConversionEnabled: Bool
 
     // MARK: Optional settings
 

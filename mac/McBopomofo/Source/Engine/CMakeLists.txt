@@ -139,6 +139,33 @@ if (ENABLE_TEST)
         endif ()
 endif ()
 
+# Contextual walk backed by a KenLM character model (vendored in ThirdParty/kenlm).
+option(ENABLE_CONTEXT_MODEL "Build the KenLM-backed context model" On)
+if (ENABLE_CONTEXT_MODEL)
+        add_library(KenLMContextModelLib
+                KenLMAmalgamation.cpp
+                KenLMAmalgamation2.cpp
+                KenLMContextModel.h
+                KenLMContextModel.cpp)
+        target_include_directories(KenLMContextModelLib PUBLIC
+                ${CMAKE_CURRENT_SOURCE_DIR}
+                ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/kenlm)
+        target_compile_options(KenLMContextModelLib PRIVATE -w)
+        find_package(Threads REQUIRED)
+        target_link_libraries(KenLMContextModelLib PUBLIC Threads::Threads)
+
+        if (ENABLE_TEST)
+                add_executable(KenLMContextModelTest KenLMContextModelTest.cpp)
+                target_link_libraries(KenLMContextModelTest GTest::gtest_main KenLMContextModelLib)
+                include(GoogleTest)
+                gtest_discover_tests(KenLMContextModelTest)
+        endif ()
+
+        add_executable(ContextualWalkEval ContextualWalkEval.cpp)
+        target_link_libraries(ContextualWalkEval
+                KenLMContextModelLib McBopomofoLMLib gramambular2_lib)
+endif ()
+
 if (ENABLE_ENGINE_PROFILE)
         add_executable(EngineProfile
                 EngineProfile.cpp)

@@ -2,7 +2,7 @@ PYTHON ?= python3
 
 .PHONY: sort clean format typecheck analyze
 
-all: data.txt data-plain-bpmf.txt associated-phrases-v2.txt
+all: data.txt data-plain-bpmf.txt associated-phrases-v2.txt context-lm.bin
 
 install: all
 
@@ -43,8 +43,15 @@ associated-phrases-v2.txt: data.txt curation/builders/phrase_deriver.py associat
 PhraseFreq.txt: curation/builders/frequency_builder.py phrase.occ exclusion.txt
 	$(PYTHON) -m curation.builders.frequency_builder
 
+# The character language model used by the contextual walk. It is stored in
+# parts under context-lm/ to stay below the Git hosting file size limit. If the
+# parts are missing, an empty file is produced and the input method falls back
+# to the unigram walk.
+context-lm.bin: $(wildcard context-lm/part-*)
+	@if ls context-lm/part-* >/dev/null 2>&1; then cat context-lm/part-* > $@; else : > $@; fi
+
 clean:
-	rm -f data.txt data-raw.txt data-plain-bpmf.txt phrase.list
+	rm -f data.txt data-raw.txt data-plain-bpmf.txt phrase.list context-lm.bin
 
 # FOR INTERNAL USE
 _install: tidy sort check all

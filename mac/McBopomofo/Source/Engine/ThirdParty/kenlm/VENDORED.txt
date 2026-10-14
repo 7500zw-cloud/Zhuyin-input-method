@@ -1,0 +1,2 @@
+kpu/kenlm @ 4cb443e (2025-03-30). Only the query-side sources of lm/ and util/ are vendored.
+Patched lm/max_order.hh to default KENLM_MAX_ORDER to 6.

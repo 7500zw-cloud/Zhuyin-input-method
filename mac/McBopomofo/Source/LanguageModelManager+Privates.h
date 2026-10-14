@@ -22,6 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #import "LanguageModelManager.h"
+#import "KenLMContextModel.h"
 #import "McBopomofoLM.h"
 #import "UserOverrideModel.h"
 #import "VariantAnnotator.h"
@@ -33,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, readonly, nonatomic) McBopomofo::McBopomofoLM *languageModelPlainBopomofo;
 @property (class, readonly, nonatomic) McBopomofo::UserOverrideModel *userOverrideModel;
 @property (class, readonly, nonatomic) McBopomofo::VariantAnnotator *variantAnnotator;
+/// The character language model for the contextual walk, or nullptr if
+/// context-lm.bin is missing or cannot be loaded.
+@property (class, readonly, nonatomic, nullable) McBopomofo::KenLMContextModel *contextModel;
 @end
 
 NS_ASSUME_NONNULL_END
