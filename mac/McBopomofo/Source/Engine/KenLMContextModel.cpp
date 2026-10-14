@@ -66,6 +66,21 @@ bool IsHan(char32_t cp) {
          (cp >= 0xF900 && cp <= 0xFAFF) || (cp >= 0x20000 && cp <= 0x3FFFF);
 }
 
+// Punctuation marks, which were clause boundaries in the training text.
+bool IsPunctuation(char32_t cp) {
+  return (cp >= 0x21 && cp <= 0x2F) || (cp >= 0x3A && cp <= 0x40) ||
+         (cp >= 0x5B && cp <= 0x60) || (cp >= 0x7B && cp <= 0x7E) ||
+         (cp >= 0x2010 && cp <= 0x205E) ||  // General Punctuation
+         (cp >= 0x3001 && cp <= 0x3003) ||  // 、。〃
+         (cp >= 0x3008 && cp <= 0x3011) ||  // 〈〉《》「」『』【】
+         (cp >= 0x3014 && cp <= 0x301F) ||  // 〔〕〖〗〘〙〚〛〜〝〞〟
+         (cp >= 0xFE10 && cp <= 0xFE19) ||  // vertical forms
+         (cp >= 0xFE30 && cp <= 0xFE4F) ||  // CJK compatibility forms
+         (cp >= 0xFE50 && cp <= 0xFE6B) ||  // small form variants
+         (cp >= 0xFF01 && cp <= 0xFF0F) || (cp >= 0xFF1A && cp <= 0xFF20) ||
+         (cp >= 0xFF3B && cp <= 0xFF40) || (cp >= 0xFF5B && cp <= 0xFF65);
+}
+
 // In the training text, runs of Latin letters and digits became "<x>".
 bool IsAsciiAlnum(char32_t cp) {
   return (cp >= '0' && cp <= '9') || (cp >= 'A' && cp <= 'Z') ||
@@ -108,9 +123,14 @@ void KenLMContextModel::beginSentence(State* out) const {
 
 double KenLMContextModel::score(const State& in, const std::string& character,
                                 State* out) const {
+  char32_t cp = FirstCodePoint(character);
+  if (IsPunctuation(cp)) {
+    double s = endSentence(in);
+    beginSentence(out);
+    return s;
+  }
   // Emoji, symbols, Bopomofo and the like were removed from the training
   // text, so they are scored as unknown words rather than as "<x>".
-  char32_t cp = FirstCodePoint(character);
   lm::WordIndex word = IsHan(cp)          ? impl_->model->BaseVocabulary().Index(character)
                        : IsAsciiAlnum(cp) ? impl_->other
                                           : impl_->model->BaseVocabulary().NotFound();
@@ -121,6 +141,19 @@ double KenLMContextModel::endSentence(const State& in) const {
   State unused;
   return impl_->model->BaseScore(in.bytes.data(), impl_->endOfSentence,
                                  unused.bytes.data());
+}
+
+bool KenLMContextModel::canRank(const std::string& value) const {
+  size_t i = 0;
+  while (i < value.size()) {
+    auto c = static_cast<unsigned char>(value[i]);
+    size_t len = c >= 0xF0 ? 4 : c >= 0xE0 ? 3 : c >= 0xC0 ? 2 : 1;
+    if (IsHan(FirstCodePoint(value.substr(i, len)))) {
+      return true;
+    }
+    i += len;
+  }
+  return false;
 }
 
 size_t KenLMContextModel::contextLength() const {

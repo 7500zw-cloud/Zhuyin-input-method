@@ -36,6 +36,8 @@ namespace McBopomofo {
 // The model is expected to be trained on text where each Han character is a
 // token and every run of other characters (Latin letters, digits, symbols) is
 // the single token "<x>"; see lm/extract_wiki40b.py in the top-level project.
+// Punctuation split the training text into clauses, so a punctuation mark is
+// scored as the end of a clause and the next character starts a new one.
 class KenLMContextModel : public Formosa::Gramambular2::ContextModel {
  public:
   // Returns nullptr if the file cannot be loaded.
@@ -47,6 +49,8 @@ class KenLMContextModel : public Formosa::Gramambular2::ContextModel {
   double score(const State& in, const std::string& character,
                State* out) const override;
   double endSentence(const State& in) const override;
+  // True if the value contains at least one Han character.
+  [[nodiscard]] bool canRank(const std::string& value) const override;
   [[nodiscard]] size_t contextLength() const override;
 
  private:

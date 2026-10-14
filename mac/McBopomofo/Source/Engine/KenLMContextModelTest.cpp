@@ -107,4 +107,29 @@ TEST_F(KenLMContextModelTest, AsciiIsOtherAndSymbolsAreUnknown) {
   EXPECT_NEAR(Score("\xF0\xA3\x87\xAB"), -1.0 - 0.3, 1e-4);  // unseen Han: <unk>
 }
 
+TEST_F(KenLMContextModelTest, PunctuationEndsClause) {
+  Formosa::Gramambular2::ContextModel::State s0;
+  Formosa::Gramambular2::ContextModel::State s1;
+  Formosa::Gramambular2::ContextModel::State s2;
+  Formosa::Gramambular2::ContextModel::State s3;
+  model_->beginSentence(&s0);
+  model_->score(s0, "義", &s1);
+  // "，" is scored as </s> after 義 (the bigram 義 </s> = -0.2) ...
+  EXPECT_NEAR(model_->score(s1, "，", &s2), -0.2, 1e-4);
+  EXPECT_NEAR(model_->score(s1, "？", &s2), -0.2, 1e-4);
+  EXPECT_NEAR(model_->score(s1, "︽", &s2), -0.2, 1e-4);
+  // ... and what follows starts a new clause.
+  EXPECT_NEAR(model_->score(s2, "定", &s3), Score("定"), 1e-6);
+}
+
+TEST_F(KenLMContextModelTest, CanRank) {
+  EXPECT_TRUE(model_->canRank("定義"));
+  EXPECT_TRUE(model_->canRank("A定"));
+  EXPECT_FALSE(model_->canRank("，"));
+  EXPECT_FALSE(model_->canRank("︽"));
+  EXPECT_FALSE(model_->canRank("\xF0\x9F\x90\x98"));
+  EXPECT_FALSE(model_->canRank("abc"));
+  EXPECT_FALSE(model_->canRank(""));
+}
+
 }  // namespace McBopomofo

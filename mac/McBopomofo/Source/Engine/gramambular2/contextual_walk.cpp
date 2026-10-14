@@ -90,7 +90,8 @@ std::string TailKey(const std::vector<std::string>& tail) {
 }
 
 // Keeps only the best hypothesis among those sharing the same tail, then the
-// best beamWidth of them.
+// best beamWidth of them. Ties keep the earlier hypothesis, i.e. the one built
+// from the better-ranked unigram, so results are deterministic.
 void Prune(std::vector<Hypothesis>* hyps, size_t beamWidth) {
   if (hyps->size() <= 1) {
     return;
@@ -108,10 +109,10 @@ void Prune(std::vector<Hypothesis>* hyps, size_t beamWidth) {
       merged[it->second] = std::move(h);
     }
   }
-  std::sort(merged.begin(), merged.end(),
-            [](const Hypothesis& a, const Hypothesis& b) {
-              return a.score > b.score;
-            });
+  std::stable_sort(merged.begin(), merged.end(),
+                   [](const Hypothesis& a, const Hypothesis& b) {
+                     return a.score > b.score;
+                   });
   if (merged.size() > beamWidth) {
     merged.resize(beamWidth);
   }
@@ -175,6 +176,9 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
       } else {
         size_t limit = std::min(unigrams.size(), options.maxUnigramsPerNode);
         for (size_t k = 0; k < limit; ++k) {
+          if (k > 0 && !model.canRank(unigrams[k].value())) {
+            continue;
+          }
           choices.emplace_back(k, options.unigramWeight * unigrams[k].score());
         }
       }

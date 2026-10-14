@@ -55,6 +55,14 @@ class ContextModel {
   // Returns log10 P(end of sentence | state).
   virtual double endSentence(const State& in) const = 0;
 
+  // Whether the model can tell this value apart from other values. A walk
+  // only lets the model choose among a node's unigrams that it can rank; for
+  // the rest (e.g. punctuation and symbols a character model never saw) the
+  // node's own top unigram is kept.
+  [[nodiscard]] virtual bool canRank(const std::string& /*value*/) const {
+    return true;
+  }
+
   // Number of preceding characters the model looks at (order - 1). Paths
   // whose last contextLength() characters agree are interchangeable from then
   // on, so a walk only needs to keep the best of them.

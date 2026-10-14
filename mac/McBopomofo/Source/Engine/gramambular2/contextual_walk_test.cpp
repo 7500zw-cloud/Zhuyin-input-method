@@ -70,7 +70,13 @@ class BigramModel : public ContextModel {
     return it == table_.end() ? kDefault : it->second;
   }
 
-  double endSentence(const State& in) const override { return 0; }
+  double endSentence(const State& /*in*/) const override { return 0; }
+
+  // Like a character model, it cannot rank values without Han characters.
+  [[nodiscard]] bool canRank(const std::string& value) const override {
+    return value.size() >= 3 && static_cast<unsigned char>(value[0]) >= 0xE4 &&
+           static_cast<unsigned char>(value[0]) <= 0xE9;
+  }
 
   [[nodiscard]] size_t contextLength() const override { return 1; }
 
@@ -105,6 +111,7 @@ std::shared_ptr<TableLM> SampleLM() {
       {"ㄧˋ", {U("意", -5), U("義", -5.5)}},
       {"ㄕˋ", {U("識", -5.5), U("是", -6)}},
       {"ㄒㄧㄥˊ", {U("形", -5), U("型", -5.5)}},
+      {"_punctuation_<", {U("，", 0), U("︽", 0), U("〈", 0)}},
       {"ㄉㄧㄥˋ-ㄧˋ", {U("定義", -4.3)}},
       {"ㄧˋ-ㄕˋ", {U("意識", -3.5)}},
   });
@@ -116,6 +123,8 @@ BigramModel SampleContext() {
       {{"義", "是"}, -0.5},
       {{"意", "識"}, -1.0},
       {{"定", "型"}, -0.5},
+      // A model may happen to prefer a symbol it cannot really judge.
+      {{"訂", "︽"}, -0.1},
   });
 }
 
@@ -168,6 +177,30 @@ TEST(ContextualWalkTest, RespectsHardOverride) {
   std::string text = Joined(result);
   EXPECT_EQ(text.substr(text.size() - std::string("識").size()), "識");
   EXPECT_TRUE(result.nodes.back()->isOverridden());
+}
+
+TEST(ContextualWalkTest, KeepsTopUnigramForUnrankableValues) {
+  // Punctuation alternatives all score the same under a character model; the
+  // walk must keep the dictionary's first choice instead of an arbitrary one.
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄉㄧㄥˋ"));
+  ASSERT_TRUE(grid.insertReading("_punctuation_<"));
+  ASSERT_TRUE(grid.insertReading("ㄒㄧㄥˊ"));
+  for (int i = 0; i < 20; ++i) {
+    auto result = ContextualWalk(grid, SampleContext());
+    ASSERT_EQ(result.nodes.size(), 3);
+    EXPECT_EQ(result.nodes[1]->value(), "，");
+  }
+}
+
+TEST(ContextualWalkTest, OverriddenUnrankableValueIsKept) {
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄉㄧㄥˋ"));
+  ASSERT_TRUE(grid.insertReading("_punctuation_<"));
+  ASSERT_TRUE(grid.overrideCandidate(1, "︽"));
+  auto result = ContextualWalk(grid, SampleContext());
+  ASSERT_EQ(result.nodes.size(), 2);
+  EXPECT_EQ(result.nodes[1]->value(), "︽");
 }
 
 TEST(ContextualWalkTest, NodeCountsAreReported) {
