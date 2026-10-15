@@ -219,6 +219,46 @@ TEST(ContextualWalkTest, RightContextIsScored) {
   EXPECT_EQ(result.totalReadings, 1);
 }
 
+TEST(ContextualWalkTest, PenalizesDoubledCharacterThatIsNotAWord) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄋㄧˇ", {U("你", -3)}},
+      {"ㄕˋ", {U("是", -2), U("試", -4)}},
+      {"ㄕˋ-ㄕˋ", {U("試試", -4.5)}},
+      {"ㄋㄧˇ-ㄕˋ", {U("你是", -4)}},
+  });
+  // The model likes 是 after 是 more than 試試 as a whole.
+  BigramModel context(
+      {{{"是", "是"}, -1.0}, {{"你", "是"}, -0.5}, {{"試", "試"}, -0.5}});
+  ReadingGrid grid(lm);
+  for (const char* r : {"ㄋㄧˇ", "ㄕˋ", "ㄕˋ"}) {
+    ASSERT_TRUE(grid.insertReading(r));
+  }
+  ContextualWalkOptions options;
+  options.repeatedCharacterPenalty = 0;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "你是是");
+  options.repeatedCharacterPenalty = -5;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "你試試");
+}
+
+TEST(ContextualWalkTest, DoubledCharacterThatIsAWordIsNotPenalized) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄊㄧㄢ", {U("天", -3)}},
+      {"ㄊㄧㄢ-ㄊㄧㄢ", {U("天天", -4)}},
+  });
+  BigramModel context({{{"天", "天"}, -0.5}});
+  ReadingGrid grid(lm);
+  ASSERT_TRUE(grid.insertReading("ㄊㄧㄢ"));
+  ASSERT_TRUE(grid.insertReading("ㄊㄧㄢ"));
+  ContextualWalkOptions options;
+  options.repeatedCharacterPenalty = -100;
+  // 天 + 天 as two nodes is still allowed, since 天天 is a word.
+  auto result = ContextualWalk(grid, context, options);
+  EXPECT_EQ(Joined(result), "天天");
+  EXPECT_GT(result.nodes.size(), 0);
+}
+
 TEST(ContextualWalkTest, NodeCountsAreReported) {
   ReadingGrid grid(SampleLM());
   for (const char* r : {"ㄉㄧㄥˋ", "ㄧˋ", "ㄕˋ"}) {

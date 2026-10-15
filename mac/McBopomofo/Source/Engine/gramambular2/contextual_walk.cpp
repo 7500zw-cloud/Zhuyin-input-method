@@ -119,6 +119,25 @@ void Prune(std::vector<Hypothesis>* hyps, size_t beamWidth) {
   *hyps = std::move(merged);
 }
 
+// Whether the grid has a node spanning the two readings at end - 1 and end
+// with `value` among its unigrams.
+bool IsWordAt(const std::vector<ReadingGrid::Span>& spans, size_t end,
+              const std::string& value) {
+  if (end == 0 || spans[end - 1].maxLength() < 2) {
+    return false;
+  }
+  const ReadingGrid::NodePtr& node = spans[end - 1].nodeOf(2);
+  if (node == nullptr) {
+    return false;
+  }
+  for (const auto& u : node->unigrams()) {
+    if (u.value() == value) {
+      return true;
+    }
+  }
+  return false;
+}
+
 }  // namespace
 
 ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
@@ -187,9 +206,16 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
       for (const auto& [unigramIndex, prior] : choices) {
         std::vector<std::string> chars =
             SplitCodePoints(unigrams[unigramIndex].value());
+        bool doubledIsWord =
+            !chars.empty() && IsWordAt(spans, i, chars.front() + chars.front());
         for (const Hypothesis& h : chart[i]) {
           Hypothesis next{h.score + prior + options.nodePenalty, h.state,
                           h.tail, steps.size()};
+          if (!chars.empty() && !h.tail.empty() &&
+              h.tail.back() == chars.front() && !doubledIsWord &&
+              model.canRank(chars.front())) {
+            next.score += options.repeatedCharacterPenalty;
+          }
           for (const auto& c : chars) {
             ContextModel::State out;
             next.score += model.score(next.state, c, &out);

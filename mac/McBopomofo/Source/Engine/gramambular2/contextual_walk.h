@@ -45,6 +45,11 @@ struct ContextualWalkOptions {
   // typed right after the composition. It is scored after every complete path
   // so that, e.g., 跟 can win over 根 before an English word.
   std::string rightContext;
+  // Added when a node starts with the same character the path ends with and
+  // the doubled character is not itself a word in the grid, as in 你是是這個
+  // for 你試試這個. A character model has seen such typos often enough not to
+  // rule them out, while real reduplications (試試, 看看) are dictionary words.
+  double repeatedCharacterPenalty = -1.5;
 };
 
 // Finds the most likely path through the grid by scoring whole sentences with
