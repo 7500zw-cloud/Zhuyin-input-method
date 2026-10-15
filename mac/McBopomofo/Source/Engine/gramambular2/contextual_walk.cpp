@@ -138,11 +138,12 @@ bool IsWordAt(const std::vector<ReadingGrid::Span>& spans, size_t end,
   return false;
 }
 
-}  // namespace
+// Values the walk should favor, keyed by reading.
+using PreferredValues = std::unordered_map<std::string, std::string>;
 
-ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
-                                       const ContextModel& model,
-                                       const ContextualWalkOptions& options) {
+ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
+                             const ContextualWalkOptions& options,
+                             const PreferredValues& preferred) {
   ReadingGrid::WalkResult result;
   const auto& spans = grid.spans();
   const size_t readingLen = grid.readings().size();
@@ -193,12 +194,19 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
                            : options.unigramWeight * node->score();
         choices.emplace_back(current, prior);
       } else {
+        auto it = preferred.find(node->reading());
+        const std::string* favored =
+            it == preferred.end() ? nullptr : &it->second;
         size_t limit = std::min(unigrams.size(), options.maxUnigramsPerNode);
         for (size_t k = 0; k < limit; ++k) {
           if (k > 0 && !model.canRank(unigrams[k].value())) {
             continue;
           }
-          choices.emplace_back(k, options.unigramWeight * unigrams[k].score());
+          double prior = options.unigramWeight * unigrams[k].score();
+          if (favored != nullptr && unigrams[k].value() == *favored) {
+            prior += options.consistencyBonus;
+          }
+          choices.emplace_back(k, prior);
         }
       }
 
@@ -273,6 +281,60 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
   std::reverse(result.nodes.begin(), result.nodes.end());
   result.totalReadings = totalReadingLen;
   result.elapsedMicroseconds = NowInMicroseconds() - start;
+  return result;
+}
+
+// For every reading of two or more syllables that the walk resolved more than
+// once, the value it chose most often, if one value was chosen strictly more
+// often than any other.
+PreferredValues MajorityValues(const ReadingGrid::WalkResult& walk) {
+  std::unordered_map<std::string, std::unordered_map<std::string, size_t>>
+      counts;
+  for (const auto& node : walk.nodes) {
+    if (node->spanningLength() >= 2) {
+      ++counts[node->reading()][node->value()];
+    }
+  }
+  PreferredValues preferred;
+  for (const auto& [reading, values] : counts) {
+    std::string best;
+    size_t bestCount = 0;
+    bool tie = false;
+    for (const auto& [value, count] : values) {
+      if (count > bestCount) {
+        best = value;
+        bestCount = count;
+        tie = false;
+      } else if (count == bestCount) {
+        tie = true;
+      }
+    }
+    if (values.size() > 1 && bestCount >= 2 && !tie) {
+      preferred.emplace(reading, best);
+    }
+  }
+  return preferred;
+}
+
+}  // namespace
+
+ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
+                                       const ContextModel& model,
+                                       const ContextualWalkOptions& options) {
+  ReadingGrid::WalkResult result = Walk(grid, model, options, {});
+  if (options.consistencyBonus == 0) {
+    return result;
+  }
+  // A word that recurs in the composition usually means the same thing each
+  // time: 拿旗子……沒拿旗子……變成[旗子]背在背後. Walk again, favoring the value
+  // chosen for most occurrences of a reading so the odd one out follows.
+  PreferredValues preferred = MajorityValues(result);
+  if (preferred.empty()) {
+    return result;
+  }
+  uint64_t firstElapsed = result.elapsedMicroseconds;
+  result = Walk(grid, model, options, preferred);
+  result.elapsedMicroseconds += firstElapsed;
   return result;
 }
 

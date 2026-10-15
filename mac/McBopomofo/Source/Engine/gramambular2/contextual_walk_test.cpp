@@ -259,6 +259,29 @@ TEST(ContextualWalkTest, DoubledCharacterThatIsAWordIsNotPenalized) {
   EXPECT_GT(result.nodes.size(), 0);
 }
 
+TEST(ContextualWalkTest, RecurringWordFollowsTheMajority) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄋㄚˊ", {U("拿", -3)}},
+      {"ㄅㄟ", {U("背", -3)}},
+      {"ㄑㄧˊ", {U("旗", -5), U("棋", -5)}},
+      {"ㄗ˙", {U("子", -5)}},
+      {"ㄑㄧˊ-ㄗ˙", {U("旗子", -5), U("棋子", -5.1)}},
+  });
+  // 旗 follows 拿, but 棋 follows 背.
+  BigramModel context({{{"拿", "旗"}, -0.5}, {{"背", "棋"}, -0.5}});
+  ReadingGrid grid(lm);
+  for (const char* r : {"ㄋㄚˊ", "ㄑㄧˊ", "ㄗ˙", "ㄋㄚˊ", "ㄑㄧˊ", "ㄗ˙", "ㄅㄟ",
+                        "ㄑㄧˊ", "ㄗ˙"}) {
+    ASSERT_TRUE(grid.insertReading(r));
+  }
+  ContextualWalkOptions options;
+  options.consistencyBonus = 0;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "拿旗子拿旗子背棋子");
+  options.consistencyBonus = 5;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "拿旗子拿旗子背旗子");
+}
+
 TEST(ContextualWalkTest, NodeCountsAreReported) {
   ReadingGrid grid(SampleLM());
   for (const char* r : {"ㄉㄧㄥˋ", "ㄧˋ", "ㄕˋ"}) {

@@ -26,7 +26,7 @@
 // on the same dictionary.
 //
 // Usage:
-//   ContextualWalkEval data.txt [model.bin] [beam] [unigramWeight] [nodePenalty] [repeatPenalty]
+//   ContextualWalkEval data.txt [model.bin] [beam] [unigramWeight] [nodePenalty] [repeatPenalty] [consistencyBonus]
 //     < testset.tsv > output.tsv
 // Without model.bin, the original unigram walk is used. The test set is a TSV
 // with a header; column 1 is the id and column 4 the space-separated readings.
@@ -51,7 +51,7 @@ using Formosa::Gramambular2::ReadingGrid;
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     std::cerr << "usage: " << argv[0]
-              << " data.txt [model.bin] [beam] [unigramWeight] [nodePenalty] [repeatPenalty]\n";
+              << " data.txt [model.bin] [beam] [unigramWeight] [nodePenalty] [repeatPenalty] [consistencyBonus]\n";
     return 1;
   }
   auto lm = std::make_shared<McBopomofo::McBopomofoLM>();
@@ -73,6 +73,7 @@ int main(int argc, char* argv[]) {
   if (argc >= 5) options.unigramWeight = std::stod(argv[4]);
   if (argc >= 6) options.nodePenalty = std::stod(argv[5]);
   if (argc >= 7) options.repeatedCharacterPenalty = std::stod(argv[6]);
+  if (argc >= 8) options.consistencyBonus = std::stod(argv[7]);
 
   ReadingGrid grid(lm);
   std::string line;

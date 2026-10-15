@@ -50,6 +50,10 @@ struct ContextualWalkOptions {
   // for 你試試這個. A character model has seen such typos often enough not to
   // rule them out, while real reduplications (試試, 看看) are dictionary words.
   double repeatedCharacterPenalty = -1.5;
+  // Added to a word for a reading that occurs several times in the
+  // composition, when that word was chosen for most of the occurrences, so a
+  // recurring word is converted the same way each time.
+  double consistencyBonus = 0.5;
 };
 
 // Finds the most likely path through the grid by scoring whole sentences with
