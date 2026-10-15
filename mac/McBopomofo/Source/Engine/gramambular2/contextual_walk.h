@@ -26,6 +26,7 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 #include "context_model.h"
 #include "reading_grid.h"
@@ -58,6 +59,21 @@ struct ContextualWalkOptions {
   // composition, when that word was chosen for most of the occurrences, so a
   // recurring word is converted the same way each time.
   double consistencyBonus = 2.0;
+  // A word the model cannot tell apart from its homophones because the cue
+  // that decides it comes later in the clause than the model can see, as 像
+  // in 要像人口那種動畫一樣 (向 otherwise). A single-syllable node with
+  // `reading` gets `bonus` for `value` when one of `cues` (readings joined by
+  // "-") follows it before the next punctuation mark. A cue ending in "$" must
+  // also end the clause, so 一樣 in 向老師借一樣東西 is not a cue.
+  struct LongRangeCue {
+    std::string reading;
+    std::string value;
+    std::vector<std::string> cues;
+    double bonus;
+  };
+  std::vector<LongRangeCue> longRangeCues = {
+      {"ㄒㄧㄤˋ", "像", {"ㄧ-ㄧㄤˋ$", "ㄧ-ㄧㄤˋ-ㄉㄜ˙", "ㄙˋ-ㄉㄜ˙"}, 1.5},
+  };
 };
 
 // Finds the most likely path through the grid by scoring whole sentences with

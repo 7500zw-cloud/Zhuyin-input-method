@@ -138,6 +138,42 @@ bool IsWordAt(const std::vector<ReadingGrid::Span>& spans, size_t end,
   return false;
 }
 
+bool IsPunctuationReading(const std::string& reading) {
+  return !reading.empty() && reading[0] == '_';
+}
+
+// Whether one of `cues` (readings joined by "-", optionally ending in "$" to
+// require the end of the clause right after) starts at or after `from` in
+// `readings` before the next punctuation reading.
+bool CueFollows(const std::vector<std::string>& readings, size_t from,
+                const std::vector<std::string>& cues) {
+  for (size_t j = from; j < readings.size(); ++j) {
+    if (IsPunctuationReading(readings[j])) {
+      return false;
+    }
+    for (std::string cue : cues) {
+      bool atClauseEnd = !cue.empty() && cue.back() == '$';
+      if (atClauseEnd) {
+        cue.pop_back();
+      }
+      std::string joined;
+      size_t k = j;
+      while (k < readings.size() && joined.size() < cue.size()) {
+        if (!joined.empty()) {
+          joined += '-';
+        }
+        joined += readings[k++];
+      }
+      if (joined == cue &&
+          (!atClauseEnd || k == readings.size() ||
+           IsPunctuationReading(readings[k]))) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // Values the walk should favor, keyed by reading.
 using PreferredValues = std::unordered_map<std::string, std::string>;
 
@@ -200,6 +236,18 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
                            : options.unigramWeight * node->score();
         choices.emplace_back(current, prior);
       } else {
+        double cueBonus = 0;
+        const std::string* cueValue = nullptr;
+        if (spanLen == 1) {
+          for (const auto& cue : options.longRangeCues) {
+            if (cue.reading == node->reading() &&
+                CueFollows(grid.readings(), i + 1, cue.cues)) {
+              cueValue = &cue.value;
+              cueBonus = cue.bonus;
+              break;
+            }
+          }
+        }
         auto it = preferred.find(node->reading());
         const std::string* favored =
             it == preferred.end() ? nullptr : &it->second;
@@ -211,6 +259,9 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
           double prior = options.unigramWeight * unigrams[k].score();
           if (favored != nullptr && unigrams[k].value() == *favored) {
             prior += options.consistencyBonus;
+          }
+          if (cueValue != nullptr && unigrams[k].value() == *cueValue) {
+            prior += cueBonus;
           }
           choices.emplace_back(k, prior);
         }

@@ -293,6 +293,31 @@ TEST(ContextualWalkTest, LeftContextIsScored) {
   EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "型");
 }
 
+TEST(ContextualWalkTest, LongRangeCueAtClauseEnd) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄒㄧㄤˋ", {U("向", -3), U("像", -3)}},
+      {"ㄊㄚ", {U("他", -3)}},
+      {"ㄧ", {U("一", -3)}},
+      {"ㄧㄤˋ", {U("樣", -3)}},
+      {"ㄉㄨㄥ", {U("東", -3)}},
+      {"ㄧ-ㄧㄤˋ", {U("一樣", -3)}},
+  });
+  BigramModel context({{{"<s>", "向"}, -0.5}});
+  ContextualWalkOptions options;
+  options.longRangeCues = {{"ㄒㄧㄤˋ", "像", {"ㄧ-ㄧㄤˋ$"}, 10}};
+
+  ReadingGrid grid(lm);
+  for (const char* r : {"ㄒㄧㄤˋ", "ㄊㄚ", "ㄧ", "ㄧㄤˋ"}) {
+    ASSERT_TRUE(grid.insertReading(r));
+  }
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "像他一樣");
+
+  // 一樣 followed by more text in the clause is not a cue.
+  ASSERT_TRUE(grid.insertReading("ㄉㄨㄥ"));
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "向他一樣東");
+}
+
 TEST(ContextualWalkTest, NodeCountsAreReported) {
   ReadingGrid grid(SampleLM());
   for (const char* r : {"ㄉㄧㄥˋ", "ㄧˋ", "ㄕˋ"}) {
