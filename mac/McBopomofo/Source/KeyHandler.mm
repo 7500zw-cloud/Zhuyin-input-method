@@ -2550,6 +2550,9 @@ InputMode InputModePlainBopomofo = @"org.openvanilla.inputmethod.McBopomofo.Plai
     if (contextModel != nullptr && Preferences.contextualConversionEnabled && [_inputMode isEqualToString:InputModeBopomofo]) {
         Formosa::Gramambular2::ContextualWalkOptions options;
         options.rightContext = rightContext;
+        if (self.leftContext.length) {
+            options.leftContext = self.leftContext.UTF8String;
+        }
         auto result = Formosa::Gramambular2::ContextualWalk(*_grid, *contextModel, options);
         if (result.totalReadings == _grid->length()) {
             _latestWalk = std::move(result);

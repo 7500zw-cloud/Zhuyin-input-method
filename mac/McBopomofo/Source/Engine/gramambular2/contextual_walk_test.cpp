@@ -282,6 +282,17 @@ TEST(ContextualWalkTest, RecurringWordFollowsTheMajority) {
   EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "拿旗子拿旗子背旗子");
 }
 
+TEST(ContextualWalkTest, LeftContextIsScored) {
+  // 型 is more likely than 形 after a committed Latin letter.
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄒㄧㄥˊ"));
+  BigramModel context({{{"K", "型"}, -0.5}});
+  EXPECT_EQ(Joined(ContextualWalk(grid, context)), "形");
+  ContextualWalkOptions options;
+  options.leftContext = "K";
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "型");
+}
+
 TEST(ContextualWalkTest, NodeCountsAreReported) {
   ReadingGrid grid(SampleLM());
   for (const char* r : {"ㄉㄧㄥˋ", "ㄧˋ", "ㄕˋ"}) {

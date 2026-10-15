@@ -30,10 +30,12 @@
 //     < testset.tsv > output.tsv
 // Without model.bin, the original unigram walk is used. The test set is a TSV
 // with a header; column 1 is the id and column 4 the space-separated readings.
+// An optional column named "left" gives the text before the composition.
 
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -78,6 +80,14 @@ int main(int argc, char* argv[]) {
   ReadingGrid grid(lm);
   std::string line;
   std::getline(std::cin, line);  // header
+  size_t leftColumn = std::numeric_limits<size_t>::max();
+  {
+    std::stringstream header(line);
+    std::string name;
+    for (size_t k = 0; std::getline(header, name, '\t'); ++k) {
+      if (name == "left") leftColumn = k;
+    }
+  }
   size_t sentences = 0;
   size_t missing = 0;
   uint64_t totalMicros = 0;
@@ -91,6 +101,7 @@ int main(int argc, char* argv[]) {
 
     grid.clear();
     bool ok = true;
+    options.leftContext = leftColumn < cols.size() ? cols[leftColumn] : "";
     std::stringstream readings(cols[3]);
     std::string reading;
     while (readings >> reading) {

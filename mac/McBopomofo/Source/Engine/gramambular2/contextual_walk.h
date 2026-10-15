@@ -41,6 +41,10 @@ struct ContextualWalkOptions {
   double unigramWeight = 0.4;
   // Added once per node on the path. Negative values favor longer phrases.
   double nodePenalty = 0.0;
+  // Text known to come right before the grid, such as the end of what was
+  // already committed in the document ("這12" before ㄓ ㄧㄥˇ ㄆㄧㄢˋ). It
+  // conditions the first characters of every path.
+  std::string leftContext;
   // Text known to follow the grid, such as a Latin letter that is about to be
   // typed right after the composition. It is scored after every complete path
   // so that, e.g., 跟 can win over 根 before an English word.

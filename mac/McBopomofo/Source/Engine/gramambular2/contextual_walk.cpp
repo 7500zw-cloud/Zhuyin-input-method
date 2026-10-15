@@ -158,6 +158,12 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
   std::vector<std::vector<Hypothesis>> chart(readingLen + 1);
   Hypothesis initial{0.0, {}, {}, kNoParent};
   model.beginSentence(&initial.state);
+  // The left context is the same for every path, so only its state matters.
+  for (const auto& c : SplitCodePoints(options.leftContext)) {
+    ContextModel::State out;
+    model.score(initial.state, c, &out);
+    initial.state = out;
+  }
   chart[0].push_back(std::move(initial));
 
   size_t vertices = 0;

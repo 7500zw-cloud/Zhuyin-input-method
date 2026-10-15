@@ -31,8 +31,11 @@
 
 namespace McBopomofo {
 
-static_assert(sizeof(lm::ngram::State) <=
-              sizeof(Formosa::Gramambular2::ContextModel::State::bytes));
+// The last byte of the state records whether the previous character was a
+// Latin letter or digit, so that a run of them is scored as a single "<x>".
+constexpr size_t kAfterOtherFlag =
+    sizeof(Formosa::Gramambular2::ContextModel::State::bytes) - 1;
+static_assert(sizeof(lm::ngram::State) <= kAfterOtherFlag);
 
 namespace {
 
@@ -119,6 +122,7 @@ KenLMContextModel::~KenLMContextModel() = default;
 
 void KenLMContextModel::beginSentence(State* out) const {
   impl_->model->BeginSentenceWrite(out->bytes.data());
+  out->bytes[kAfterOtherFlag] = 0;
 }
 
 double KenLMContextModel::score(const State& in, const std::string& character,
@@ -129,12 +133,21 @@ double KenLMContextModel::score(const State& in, const std::string& character,
     beginSentence(out);
     return s;
   }
+  bool isOther = IsAsciiAlnum(cp);
+  if (isOther && in.bytes[kAfterOtherFlag] != 0) {
+    // Continues a run like "12" or "NIGHT", already scored as one "<x>".
+    *out = in;
+    return 0;
+  }
   // Emoji, symbols, Bopomofo and the like were removed from the training
   // text, so they are scored as unknown words rather than as "<x>".
-  lm::WordIndex word = IsHan(cp)          ? impl_->model->BaseVocabulary().Index(character)
-                       : IsAsciiAlnum(cp) ? impl_->other
-                                          : impl_->model->BaseVocabulary().NotFound();
-  return impl_->model->BaseScore(in.bytes.data(), word, out->bytes.data());
+  lm::WordIndex word = IsHan(cp)  ? impl_->model->BaseVocabulary().Index(character)
+                       : isOther ? impl_->other
+                                 : impl_->model->BaseVocabulary().NotFound();
+  double score =
+      impl_->model->BaseScore(in.bytes.data(), word, out->bytes.data());
+  out->bytes[kAfterOtherFlag] = isOther ? 1 : 0;
+  return score;
 }
 
 double KenLMContextModel::endSentence(const State& in) const {
