@@ -53,7 +53,7 @@ struct ContextualWalkOptions {
   // Added to a word for a reading that occurs several times in the
   // composition, when that word was chosen for most of the occurrences, so a
   // recurring word is converted the same way each time.
-  double consistencyBonus = 0.5;
+  double consistencyBonus = 2.0;
 };
 
 // Finds the most likely path through the grid by scoring whole sentences with
