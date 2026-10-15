@@ -68,6 +68,7 @@ InputMode InputModePlainBopomofo = @"org.openvanilla.inputmethod.McBopomofo.Plai
 }
 
 @synthesize delegate = _delegate;
+@synthesize leftContext = _leftContext;
 
 - (NSString *)inputMode
 {
