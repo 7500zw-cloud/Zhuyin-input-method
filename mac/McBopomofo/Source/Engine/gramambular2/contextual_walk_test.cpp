@@ -318,6 +318,22 @@ TEST(ContextualWalkTest, LongRangeCueAtClauseEnd) {
   EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "向他一樣東");
 }
 
+TEST(ContextualWalkTest, WordModelScoresWholeValues) {
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄉㄧㄥˋ"));
+  ASSERT_TRUE(grid.insertReading("ㄒㄧㄥˊ"));
+  // The character model has no opinion, so the unigram scores win.
+  BigramModel characters({});
+  EXPECT_EQ(Joined(ContextualWalk(grid, characters)), "訂形");
+
+  // A word model that knows 定 then 型 changes the result.
+  BigramModel words({{{"<s>", "定"}, -0.1}, {{"定", "型"}, -0.1}});
+  ContextualWalkOptions options;
+  options.wordModel = &words;
+  options.wordWeight = 1.0;
+  EXPECT_EQ(Joined(ContextualWalk(grid, characters, options)), "定型");
+}
+
 TEST(ContextualWalkTest, NodeCountsAreReported) {
   ReadingGrid grid(SampleLM());
   for (const char* r : {"ㄉㄧㄥˋ", "ㄧˋ", "ㄕˋ"}) {

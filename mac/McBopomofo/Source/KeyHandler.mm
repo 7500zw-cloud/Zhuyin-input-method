@@ -2551,6 +2551,7 @@ InputMode InputModePlainBopomofo = @"org.openvanilla.inputmethod.McBopomofo.Plai
     if (contextModel != nullptr && Preferences.contextualConversionEnabled && [_inputMode isEqualToString:InputModeBopomofo]) {
         Formosa::Gramambular2::ContextualWalkOptions options;
         options.rightContext = rightContext;
+        options.wordModel = LanguageModelManager.wordModel;
         if (self.leftContext.length) {
             options.leftContext = self.leftContext.UTF8String;
         }

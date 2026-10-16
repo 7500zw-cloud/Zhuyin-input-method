@@ -47,7 +47,7 @@ struct ContextualWalkOptions {
   // with 影片 and 比重 with 多, which a character model often cannot tell.
   const ContextModel* wordModel = nullptr;
   // Weight of the word model's log10 probabilities.
-  double wordWeight = 0.5;
+  double wordWeight = 0.75;
   // Text known to come right before the grid, such as the end of what was
   // already committed in the document ("這12" before ㄓ ㄧㄥˇ ㄆㄧㄢˋ). It
   // conditions the first characters of every path.

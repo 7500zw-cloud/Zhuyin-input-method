@@ -105,6 +105,7 @@
 		656D1E0D4E7C46AA33FBD924 /* KenLMAmalgamation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B36F5FD966AD3FBED1678BB0 /* KenLMAmalgamation.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		33A92B53791E483E7EE327C3 /* KenLMAmalgamation2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 723A6754E3CF21455B6F288B /* KenLMAmalgamation2.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		22023B0A0BE2BDD858507D28 /* context-lm.bin in Resources */ = {isa = PBXBuildFile; fileRef = 20C98E749C979BFEE17EDC46 /* context-lm.bin */; };
+		3B7E1A2C4D5F6071829304A5 /* word-lm.bin in Resources */ = {isa = PBXBuildFile; fileRef = 4C8F2B3D5E607182930415B6 /* word-lm.bin */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -271,6 +272,7 @@
 		B36F5FD966AD3FBED1678BB0 /* KenLMAmalgamation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KenLMAmalgamation.cpp; sourceTree = "<group>"; };
 		723A6754E3CF21455B6F288B /* KenLMAmalgamation2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KenLMAmalgamation2.cpp; sourceTree = "<group>"; };
 		20C98E749C979BFEE17EDC46 /* context-lm.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "context-lm.bin"; sourceTree = "<group>"; };
+		4C8F2B3D5E607182930415B6 /* word-lm.bin */ = {isa = PBXFileReference; lastKnownFileType = file; path = "word-lm.bin"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -449,6 +451,7 @@
 				6A38BBF615FC117A00A8A51F /* data.txt */,
 				6AD7CBC715FE555000691B5B /* data-plain-bpmf.txt */,
 				20C98E749C979BFEE17EDC46 /* context-lm.bin */,
+				4C8F2B3D5E607182930415B6 /* word-lm.bin */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -717,6 +720,7 @@
 				6A187E2616004C5900466B2E /* MainMenu.xib in Resources */,
 				D47D73A827A6C84F00255A50 /* associated-phrases-v2.txt in Resources */,
 				22023B0A0BE2BDD858507D28 /* context-lm.bin in Resources */,
+				3B7E1A2C4D5F6071829304A5 /* word-lm.bin in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
