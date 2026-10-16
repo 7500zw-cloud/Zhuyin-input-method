@@ -160,6 +160,7 @@ baselines/chewing/target/release/chewing-baseline third_party/chewing-dict \
 - `Source/Engine/KenLMContextModel.*`：語言模型的讀取與評分，使用內嵌的 KenLM 查詢程式碼（`ThirdParty/kenlm`，LGPL-2.1）。
 - `Source/KeyHandler.mm`：在「小麥注音」模式下改用整句選字。找不到模型或關閉設定時，自動退回原本的選字方式。「簡易注音」模式（逐字選字）不受影響。
 - `Source/Data/context-lm/`：85 MB 的語言模型，切成三個檔案存放，建置時自動合併。
+- `Source/Data/word-lm/`：101 MB 的詞層級語言模型，與字元模型一起評分，補足詞與詞的搭配（例如「支／影片」）。重現方式見 `lm/train_words.sh`。
 
 ### 成績（同一份小麥注音詞庫，整句正確率）
 
@@ -180,7 +181,17 @@ baselines/chewing/target/release/chewing-baseline third_party/chewing-dict \
 | PTT ×10，剪枝 `0 2 4 6 8` | 89.5% | 82.2% | 145 MB |
 | PTT ×3，剪枝 `0 1 2 3 4` | 90.4% | 81.5% | 125 MB |
 
-速度：每次重新選字平均約 3 毫秒、最慢約 7 毫秒（Linux，單執行緒）。
+加入詞層級模型（權重 0.75）後：
+
+| | 只用字元模型 | 字元＋詞模型 |
+|---|---:|---:|
+| 測試集 215 句 | 89.8% | 90.2% |
+| 開發集 600 句 | 82.0% | 83.2% |
+| 800 段四子句文章（未參與訓練） | 351 段 | 386 段 |
+
+詞模型若刪減到 46 MB，800 段只剩 372 段、開發集沒有進步，所以採用 101 MB 版。
+
+速度：一般句子每次重新選字平均約 5 毫秒；四子句、約 40 個音節的長段落平均約 16 毫秒、最慢約 52 毫秒（Linux，單執行緒）。
 
 ### 在 Mac 上安裝
 
