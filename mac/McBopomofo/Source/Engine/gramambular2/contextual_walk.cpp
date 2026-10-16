@@ -238,14 +238,12 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
       } else {
         double cueBonus = 0;
         const std::string* cueValue = nullptr;
-        if (spanLen == 1) {
-          for (const auto& cue : options.longRangeCues) {
-            if (cue.reading == node->reading() &&
-                CueFollows(grid.readings(), i + 1, cue.cues)) {
-              cueValue = &cue.value;
-              cueBonus = cue.bonus;
-              break;
-            }
+        for (const auto& cue : options.longRangeCues) {
+          if (cue.reading == node->reading() &&
+              CueFollows(grid.readings(), i + spanLen, cue.cues)) {
+            cueValue = &cue.value;
+            cueBonus = cue.bonus;
+            break;
           }
         }
         auto it = preferred.find(node->reading());

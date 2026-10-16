@@ -61,7 +61,7 @@ struct ContextualWalkOptions {
   double consistencyBonus = 2.0;
   // A word the model cannot tell apart from its homophones because the cue
   // that decides it comes later in the clause than the model can see, as 像
-  // in 要像人口那種動畫一樣 (向 otherwise). A single-syllable node with
+  // in 要像人口那種動畫一樣 (向 otherwise). A node whose reading is exactly
   // `reading` gets `bonus` for `value` when one of `cues` (readings joined by
   // "-") follows it before the next punctuation mark. A cue ending in "$" must
   // also end the clause, so 一樣 in 向老師借一樣東西 is not a cue.
@@ -78,6 +78,13 @@ struct ContextualWalkOptions {
        {"ㄧ-ㄈㄨˊ", "ㄎㄨˋ-ㄗ˙", "ㄒㄧㄝˊ-ㄗ˙", "ㄑㄩㄣˊ-ㄗ˙", "ㄨㄞˋ-ㄊㄠˋ",
         "ㄨㄚˋ-ㄗ˙"},
        1.5},
+      // 把截圖貼進對話視窗內, not 貼近: 進 when the clause ends in 內 or 裡.
+      {"ㄊㄧㄝ-ㄐㄧㄣˋ", "貼進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 1.5},
+      {"ㄌㄚ-ㄐㄧㄣˋ", "拉進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 1.5},
+      {"ㄗㄡˇ-ㄐㄧㄣˋ", "走進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 1.5},
+      {"ㄑㄧㄝ-ㄐㄧㄣˋ", "切進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 1.5},
+      {"ㄧㄚ-ㄐㄧㄣˋ", "壓進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 1.5},
+      {"ㄎㄞ-ㄐㄧㄣˋ", "開進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 1.5},
   };
 };
 
