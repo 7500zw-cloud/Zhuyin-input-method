@@ -24,6 +24,7 @@
 #include "contextual_walk.h"
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <limits>
 #include <string>
@@ -78,15 +79,31 @@ struct Hypothesis {
   // The last contextLength() characters, used to merge equivalent paths.
   std::vector<std::string> tail;
   size_t step;  // index into steps, or kNoParent for the empty path
+  // State and last words of the optional word model.
+  ContextModel::State wordState;
+  std::vector<std::string> wordTail;
 };
 
-std::string TailKey(const std::vector<std::string>& tail) {
+std::string TailKey(const Hypothesis& h) {
   std::string key;
-  for (const auto& c : tail) {
+  for (const auto& c : h.tail) {
     key += c;
     key += '\x1f';
   }
+  key += '\x1e';
+  for (const auto& w : h.wordTail) {
+    key += w;
+    key += '\x1f';
+  }
   return key;
+}
+
+bool StartsWithAsciiAlnum(const std::string& s) {
+  return !s.empty() && std::isalnum(static_cast<unsigned char>(s[0]));
+}
+
+bool EndsWithAsciiAlnum(const std::string& s) {
+  return !s.empty() && std::isalnum(static_cast<unsigned char>(s.back()));
 }
 
 // Keeps only the best hypothesis among those sharing the same tail, then the
@@ -100,7 +117,7 @@ void Prune(std::vector<Hypothesis>* hyps, size_t beamWidth) {
   std::vector<Hypothesis> merged;
   merged.reserve(hyps->size());
   for (auto& h : *hyps) {
-    std::string key = TailKey(h.tail);
+    std::string key = TailKey(h);
     auto it = best.find(key);
     if (it == best.end()) {
       best.emplace(std::move(key), merged.size());
@@ -192,8 +209,21 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
 
   std::vector<Step> steps;
   std::vector<std::vector<Hypothesis>> chart(readingLen + 1);
-  Hypothesis initial{0.0, {}, {}, kNoParent};
+  const ContextModel* wordModel = options.wordModel;
+  const size_t wordContextLength =
+      wordModel != nullptr ? wordModel->contextLength() : 0;
+  Hypothesis initial{0.0, {}, {}, kNoParent, {}, {}};
   model.beginSentence(&initial.state);
+  if (wordModel != nullptr) {
+    wordModel->beginSentence(&initial.wordState);
+    // Only a Latin letter or digit right before the grid is known to be a
+    // whole token ("<x>"); a Han character may be the end of any word.
+    if (EndsWithAsciiAlnum(options.leftContext)) {
+      ContextModel::State out;
+      wordModel->score(initial.wordState, "x", &out);
+      initial.wordState = out;
+    }
+  }
   // The left context is the same for every path, so only its state matters.
   for (const auto& c : SplitCodePoints(options.leftContext)) {
     ContextModel::State out;
@@ -272,8 +302,23 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
         bool doubledIsWord =
             !chars.empty() && IsWordAt(spans, i, chars.front() + chars.front());
         for (const Hypothesis& h : chart[i]) {
-          Hypothesis next{h.score + prior + options.nodePenalty, h.state,
-                          h.tail, steps.size()};
+          Hypothesis next{h.score + prior + options.nodePenalty,
+                          h.state,
+                          h.tail,
+                          steps.size(),
+                          h.wordState,
+                          h.wordTail};
+          if (wordModel != nullptr) {
+            const std::string& word = unigrams[unigramIndex].value();
+            ContextModel::State out;
+            next.score +=
+                options.wordWeight * wordModel->score(h.wordState, word, &out);
+            next.wordState = out;
+            next.wordTail.push_back(word);
+            if (next.wordTail.size() > wordContextLength) {
+              next.wordTail.erase(next.wordTail.begin());
+            }
+          }
           if (!chars.empty() && !h.tail.empty() &&
               h.tail.back() == chars.front() && !doubledIsWord &&
               model.canRank(chars.front())) {
@@ -310,6 +355,15 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
       state = out;
     }
     s += model.endSentence(state);
+    if (wordModel != nullptr) {
+      ContextModel::State wordState = h.wordState;
+      if (StartsWithAsciiAlnum(options.rightContext)) {
+        ContextModel::State out;
+        s += options.wordWeight * wordModel->score(wordState, "x", &out);
+        wordState = out;
+      }
+      s += options.wordWeight * wordModel->endSentence(wordState);
+    }
     if (s > bestScore) {
       bestScore = s;
       best = &h;

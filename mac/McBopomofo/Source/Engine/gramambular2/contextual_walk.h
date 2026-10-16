@@ -42,6 +42,12 @@ struct ContextualWalkOptions {
   double unigramWeight = 0.4;
   // Added once per node on the path. Negative values favor longer phrases.
   double nodePenalty = 0.0;
+  // An optional word-level model, scored once per node with the node's whole
+  // value as the token, on top of the character model. It knows that 支 goes
+  // with 影片 and 比重 with 多, which a character model often cannot tell.
+  const ContextModel* wordModel = nullptr;
+  // Weight of the word model's log10 probabilities.
+  double wordWeight = 0.5;
   // Text known to come right before the grid, such as the end of what was
   // already committed in the document ("這12" before ㄓ ㄧㄥˇ ㄆㄧㄢˋ). It
   // conditions the first characters of every path.
