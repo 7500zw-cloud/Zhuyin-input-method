@@ -86,6 +86,13 @@ static void LTLoadVariantAnnotatorData()
     }
 }
 
+// Typing ㄣ for ㄥ (or the reverse) in a phrase still finds the phrase, e.g.
+// ㄌㄧㄣˊ-ㄔㄥˊ for 凌晨. Only the McBopomofo mode; plain Bopomofo stays exact.
+static void LTEnableNasalFinalTolerance()
+{
+    gLanguageModelMcBopomofo.setNasalFinalTolerance(true);
+}
+
 static void LTLoadContextModel()
 {
     if (gContextModelLoadAttempted) {
@@ -118,9 +125,7 @@ static void LTLoadContextModel()
     if (!gLanguageModelMcBopomofo.isDataModelLoaded()) {
         LTLoadLanguageModelFile(@"data", gLanguageModelMcBopomofo);
     }
-    // Typing ㄣ for ㄥ (or the reverse) in a phrase still finds the phrase,
-    // e.g. ㄌㄧㄣˊ-ㄔㄥˊ for 凌晨. The plain Bopomofo mode stays exact.
-    gLanguageModelMcBopomofo.setNasalFinalTolerance(true);
+    LTEnableNasalFinalTolerance();
     if (!gLanguageModelMcBopomofo.isAssociatedPhrasesV2Loaded()) {
         LTLoadAssociatedPhrases(gLanguageModelMcBopomofo);
     }
@@ -143,6 +148,7 @@ static void LTLoadContextModel()
         if (!gLanguageModelMcBopomofo.isDataModelLoaded()) {
             LTLoadLanguageModelFile(@"data", gLanguageModelMcBopomofo);
         }
+        LTEnableNasalFinalTolerance();
         if (!gLanguageModelMcBopomofo.isAssociatedPhrasesV2Loaded()) {
             LTLoadAssociatedPhrases(gLanguageModelMcBopomofo);
         }
