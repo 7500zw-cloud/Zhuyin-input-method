@@ -87,6 +87,29 @@ TEST(McBopomofoLMTest, PrimaryLanguageModel) {
   EXPECT_LT(unigrams[0].score(), 0);
 }
 
+TEST(McBopomofoLMTest, NasalFinalTolerance) {
+  McBopomofoLM lm;
+  auto db = std::make_unique<ParselessPhraseDB>(kPrimaryLMData,
+                                                sizeof(kPrimaryLMData));
+  lm.loadLanguageModel(std::move(db));
+
+  // ㄔㄣˊ-ㄕˋ has no phrase; ㄔㄥˊ-ㄕˋ does.
+  EXPECT_TRUE(lm.getUnigrams("ㄔㄣˊ-ㄕˋ").empty());
+
+  lm.setNasalFinalTolerance(true, -8.0);
+  auto unigrams = lm.getUnigrams("ㄔㄣˊ-ㄕˋ");
+  ASSERT_EQ(unigrams.size(), 3);
+  EXPECT_EQ(unigrams[0].value(), "城市");
+  EXPECT_NEAR(unigrams[0].score(), -3.98856498 - 8.0, 1e-6);
+
+  // A reading that has phrases of its own is left alone.
+  EXPECT_EQ(lm.getUnigrams("ㄔㄥˊ-ㄕˋ")[0].score(), -3.98856498);
+  // Single syllables are never swapped.
+  EXPECT_TRUE(lm.getUnigrams("ㄇㄧㄣˊ").empty());
+  // Several syllables may be swapped at once.
+  EXPECT_EQ(lm.getUnigrams("ㄇㄧㄣˊ-ㄘˊ")[0].value(), "名詞");
+}
+
 TEST(McBopomofoLMTest, AssociatedPhrasesV2) {
   McBopomofoLM lm;
   auto db = std::make_unique<ParselessPhraseDB>(

@@ -118,6 +118,9 @@ static void LTLoadContextModel()
     if (!gLanguageModelMcBopomofo.isDataModelLoaded()) {
         LTLoadLanguageModelFile(@"data", gLanguageModelMcBopomofo);
     }
+    // Typing ㄣ for ㄥ (or the reverse) in a phrase still finds the phrase,
+    // e.g. ㄌㄧㄣˊ-ㄔㄥˊ for 凌晨. The plain Bopomofo mode stays exact.
+    gLanguageModelMcBopomofo.setNasalFinalTolerance(true);
     if (!gLanguageModelMcBopomofo.isAssociatedPhrasesV2Loaded()) {
         LTLoadAssociatedPhrases(gLanguageModelMcBopomofo);
     }

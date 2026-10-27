@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -61,6 +62,13 @@ int main(int argc, char* argv[]) {
   }
   auto lm = std::make_shared<McBopomofo::McBopomofoLM>();
   lm->loadLanguageModel(argv[1]);
+  // NASAL_TOLERANCE=1 turns on the ㄣ/ㄥ tolerance, as in the input method.
+  const char* nasal = std::getenv("NASAL_TOLERANCE");
+  const char* nasalPenalty = std::getenv("NASAL_PENALTY");
+  if (nasal != nullptr && nasal[0] == '1') {
+    lm->setNasalFinalTolerance(
+        true, nasalPenalty != nullptr ? std::stod(nasalPenalty) : -8.0);
+  }
   if (!lm->isDataModelLoaded()) {
     std::cerr << "cannot load " << argv[1] << "\n";
     return 1;
