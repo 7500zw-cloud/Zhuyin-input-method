@@ -285,6 +285,10 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
             continue;
           }
           double prior = options.unigramWeight * unigrams[k].score();
+          if (auto bonus = options.valueBonuses.find(unigrams[k].value());
+              bonus != options.valueBonuses.end()) {
+            prior += bonus->second;
+          }
           if (favored != nullptr && unigrams[k].value() == *favored) {
             prior += options.consistencyBonus;
           }

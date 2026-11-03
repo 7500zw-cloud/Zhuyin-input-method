@@ -26,6 +26,7 @@
 
 #include <cstddef>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "context_model.h"
@@ -42,6 +43,14 @@ struct ContextualWalkOptions {
   double unigramWeight = 0.4;
   // Added once per node on the path. Negative values favor longer phrases.
   double nodePenalty = 0.0;
+  // Added to these values wherever they are a candidate. The models are
+  // trained mostly on Wikipedia, where some words are far more common than in
+  // everyday typing (逝世 in biographies), so a colloquial homophone such as
+  // 試試 loses even in 你用這個指令試試. The dictionary already ranks these
+  // higher; the bonus keeps the models from overturning it without context.
+  std::unordered_map<std::string, double> valueBonuses = {
+      {"試試", 1.5},
+  };
   // An optional word-level model, scored once per node with the node's whole
   // value as the token, on top of the character model. It knows that 支 goes
   // with 影片 and 比重 with 多, which a character model often cannot tell.
