@@ -246,5 +246,5 @@ python3 tools/evaluate.py out.tsv
 - 本專案的工具與測試集：待定。
 - `mac/McBopomofo/`：MIT（小麥注音原作者與本專案貢獻者）。
 - `mac/McBopomofo/Source/Engine/ThirdParty/kenlm/`：LGPL-2.1。
-- 語言模型 `context-lm`：CC BY-SA 3.0（衍生自維基百科）。
+- 語言模型 `context-lm`、`word-lm`：CC BY-SA 3.0（衍生自維基百科與 PTT 語料）。
 - 新酷音詞庫（LGPL-2.1-or-later）只在本機下載使用，不收進本專案。
