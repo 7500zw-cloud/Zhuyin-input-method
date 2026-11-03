@@ -107,6 +107,22 @@ TEST_F(KenLMContextModelTest, AsciiIsOtherAndSymbolsAreUnknown) {
   EXPECT_NEAR(Score("\xF0\xA3\x87\xAB"), -1.0 - 0.3, 1e-4);  // unseen Han: <unk>
 }
 
+TEST_F(KenLMContextModelTest, RunOfLettersAndDigitsIsOneToken) {
+  Formosa::Gramambular2::ContextModel::State s0;
+  Formosa::Gramambular2::ContextModel::State s1;
+  Formosa::Gramambular2::ContextModel::State s2;
+  Formosa::Gramambular2::ContextModel::State s3;
+  model_->beginSentence(&s0);
+  EXPECT_NEAR(model_->score(s0, "1", &s1), -0.5 - 0.3, 1e-4);
+  // "2" continues the run "12" and costs nothing.
+  EXPECT_NEAR(model_->score(s1, "2", &s2), 0, 1e-6);
+  // 定 then follows a single <x> (unigram -0.7 plus <x> backoff -0.3).
+  EXPECT_NEAR(model_->score(s2, "定", &s3), -0.7 - 0.3, 1e-4);
+  // After a Han character, a letter starts a new run.
+  Formosa::Gramambular2::ContextModel::State s4;
+  EXPECT_LT(model_->score(s3, "A", &s4), -0.1);
+}
+
 TEST_F(KenLMContextModelTest, PunctuationEndsClause) {
   Formosa::Gramambular2::ContextModel::State s0;
   Formosa::Gramambular2::ContextModel::State s1;

@@ -125,6 +125,8 @@ BigramModel SampleContext() {
       {{"定", "型"}, -0.5},
       // A model may happen to prefer a symbol it cannot really judge.
       {{"訂", "︽"}, -0.1},
+      // 定 is more likely than 訂 before a Latin letter.
+      {{"定", "K"}, -0.5},
   });
 }
 
@@ -201,6 +203,135 @@ TEST(ContextualWalkTest, OverriddenUnrankableValueIsKept) {
   auto result = ContextualWalk(grid, SampleContext());
   ASSERT_EQ(result.nodes.size(), 2);
   EXPECT_EQ(result.nodes[1]->value(), "︽");
+}
+
+TEST(ContextualWalkTest, RightContextIsScored) {
+  // With nothing after it, 訂 keeps its better unigram score; a letter known to
+  // follow the composition lets the model pick 定 instead.
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄉㄧㄥˋ"));
+  EXPECT_EQ(Joined(ContextualWalk(grid, SampleContext())), "訂");
+
+  ContextualWalkOptions options;
+  options.rightContext = "K";
+  auto result = ContextualWalk(grid, SampleContext(), options);
+  EXPECT_EQ(Joined(result), "定");
+  EXPECT_EQ(result.totalReadings, 1);
+}
+
+TEST(ContextualWalkTest, PenalizesDoubledCharacterThatIsNotAWord) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄋㄧˇ", {U("你", -3)}},
+      {"ㄕˋ", {U("是", -2), U("試", -4)}},
+      {"ㄕˋ-ㄕˋ", {U("試試", -4.5)}},
+      {"ㄋㄧˇ-ㄕˋ", {U("你是", -4)}},
+  });
+  // The model likes 是 after 是 more than 試試 as a whole.
+  BigramModel context(
+      {{{"是", "是"}, -1.0}, {{"你", "是"}, -0.5}, {{"試", "試"}, -0.5}});
+  ReadingGrid grid(lm);
+  for (const char* r : {"ㄋㄧˇ", "ㄕˋ", "ㄕˋ"}) {
+    ASSERT_TRUE(grid.insertReading(r));
+  }
+  ContextualWalkOptions options;
+  options.repeatedCharacterPenalty = 0;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "你是是");
+  options.repeatedCharacterPenalty = -5;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "你試試");
+}
+
+TEST(ContextualWalkTest, DoubledCharacterThatIsAWordIsNotPenalized) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄊㄧㄢ", {U("天", -3)}},
+      {"ㄊㄧㄢ-ㄊㄧㄢ", {U("天天", -4)}},
+  });
+  BigramModel context({{{"天", "天"}, -0.5}});
+  ReadingGrid grid(lm);
+  ASSERT_TRUE(grid.insertReading("ㄊㄧㄢ"));
+  ASSERT_TRUE(grid.insertReading("ㄊㄧㄢ"));
+  ContextualWalkOptions options;
+  options.repeatedCharacterPenalty = -100;
+  // 天 + 天 as two nodes is still allowed, since 天天 is a word.
+  auto result = ContextualWalk(grid, context, options);
+  EXPECT_EQ(Joined(result), "天天");
+  EXPECT_GT(result.nodes.size(), 0);
+}
+
+TEST(ContextualWalkTest, RecurringWordFollowsTheMajority) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄋㄚˊ", {U("拿", -3)}},
+      {"ㄅㄟ", {U("背", -3)}},
+      {"ㄑㄧˊ", {U("旗", -5), U("棋", -5)}},
+      {"ㄗ˙", {U("子", -5)}},
+      {"ㄑㄧˊ-ㄗ˙", {U("旗子", -5), U("棋子", -5.1)}},
+  });
+  // 旗 follows 拿, but 棋 follows 背.
+  BigramModel context({{{"拿", "旗"}, -0.5}, {{"背", "棋"}, -0.5}});
+  ReadingGrid grid(lm);
+  for (const char* r : {"ㄋㄚˊ", "ㄑㄧˊ", "ㄗ˙", "ㄋㄚˊ", "ㄑㄧˊ", "ㄗ˙", "ㄅㄟ",
+                        "ㄑㄧˊ", "ㄗ˙"}) {
+    ASSERT_TRUE(grid.insertReading(r));
+  }
+  ContextualWalkOptions options;
+  options.consistencyBonus = 0;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "拿旗子拿旗子背棋子");
+  options.consistencyBonus = 5;
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "拿旗子拿旗子背旗子");
+}
+
+TEST(ContextualWalkTest, LeftContextIsScored) {
+  // 型 is more likely than 形 after a committed Latin letter.
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄒㄧㄥˊ"));
+  BigramModel context({{{"K", "型"}, -0.5}});
+  EXPECT_EQ(Joined(ContextualWalk(grid, context)), "形");
+  ContextualWalkOptions options;
+  options.leftContext = "K";
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "型");
+}
+
+TEST(ContextualWalkTest, LongRangeCueAtClauseEnd) {
+  using U = LanguageModel::Unigram;
+  auto lm = std::make_shared<TableLM>(std::map<std::string, std::vector<U>>{
+      {"ㄒㄧㄤˋ", {U("向", -3), U("像", -3)}},
+      {"ㄊㄚ", {U("他", -3)}},
+      {"ㄧ", {U("一", -3)}},
+      {"ㄧㄤˋ", {U("樣", -3)}},
+      {"ㄉㄨㄥ", {U("東", -3)}},
+      {"ㄧ-ㄧㄤˋ", {U("一樣", -3)}},
+  });
+  BigramModel context({{{"<s>", "向"}, -0.5}});
+  ContextualWalkOptions options;
+  options.longRangeCues = {{"ㄒㄧㄤˋ", "像", {"ㄧ-ㄧㄤˋ$"}, 10}};
+
+  ReadingGrid grid(lm);
+  for (const char* r : {"ㄒㄧㄤˋ", "ㄊㄚ", "ㄧ", "ㄧㄤˋ"}) {
+    ASSERT_TRUE(grid.insertReading(r));
+  }
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "像他一樣");
+
+  // 一樣 followed by more text in the clause is not a cue.
+  ASSERT_TRUE(grid.insertReading("ㄉㄨㄥ"));
+  EXPECT_EQ(Joined(ContextualWalk(grid, context, options)), "向他一樣東");
+}
+
+TEST(ContextualWalkTest, WordModelScoresWholeValues) {
+  ReadingGrid grid(SampleLM());
+  ASSERT_TRUE(grid.insertReading("ㄉㄧㄥˋ"));
+  ASSERT_TRUE(grid.insertReading("ㄒㄧㄥˊ"));
+  // The character model has no opinion, so the unigram scores win.
+  BigramModel characters({});
+  EXPECT_EQ(Joined(ContextualWalk(grid, characters)), "訂形");
+
+  // A word model that knows 定 then 型 changes the result.
+  BigramModel words({{{"<s>", "定"}, -0.1}, {{"定", "型"}, -0.1}});
+  ContextualWalkOptions options;
+  options.wordModel = &words;
+  options.wordWeight = 1.0;
+  EXPECT_EQ(Joined(ContextualWalk(grid, characters, options)), "定型");
 }
 
 TEST(ContextualWalkTest, NodeCountsAreReported) {

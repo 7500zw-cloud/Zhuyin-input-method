@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// The character language model for the contextual walk, or nullptr if
 /// context-lm.bin is missing or cannot be loaded.
 @property (class, readonly, nonatomic, nullable) McBopomofo::KenLMContextModel *contextModel;
+@property (class, readonly, nonatomic, nullable) McBopomofo::KenLMContextModel *wordModel;
 @end
 
 NS_ASSUME_NONNULL_END

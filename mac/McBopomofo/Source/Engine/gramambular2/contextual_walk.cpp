@@ -24,6 +24,7 @@
 #include "contextual_walk.h"
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <limits>
 #include <string>
@@ -78,15 +79,31 @@ struct Hypothesis {
   // The last contextLength() characters, used to merge equivalent paths.
   std::vector<std::string> tail;
   size_t step;  // index into steps, or kNoParent for the empty path
+  // State and last words of the optional word model.
+  ContextModel::State wordState;
+  std::vector<std::string> wordTail;
 };
 
-std::string TailKey(const std::vector<std::string>& tail) {
+std::string TailKey(const Hypothesis& h) {
   std::string key;
-  for (const auto& c : tail) {
+  for (const auto& c : h.tail) {
     key += c;
     key += '\x1f';
   }
+  key += '\x1e';
+  for (const auto& w : h.wordTail) {
+    key += w;
+    key += '\x1f';
+  }
   return key;
+}
+
+bool StartsWithAsciiAlnum(const std::string& s) {
+  return !s.empty() && std::isalnum(static_cast<unsigned char>(s[0]));
+}
+
+bool EndsWithAsciiAlnum(const std::string& s) {
+  return !s.empty() && std::isalnum(static_cast<unsigned char>(s.back()));
 }
 
 // Keeps only the best hypothesis among those sharing the same tail, then the
@@ -100,7 +117,7 @@ void Prune(std::vector<Hypothesis>* hyps, size_t beamWidth) {
   std::vector<Hypothesis> merged;
   merged.reserve(hyps->size());
   for (auto& h : *hyps) {
-    std::string key = TailKey(h.tail);
+    std::string key = TailKey(h);
     auto it = best.find(key);
     if (it == best.end()) {
       best.emplace(std::move(key), merged.size());
@@ -119,11 +136,67 @@ void Prune(std::vector<Hypothesis>* hyps, size_t beamWidth) {
   *hyps = std::move(merged);
 }
 
-}  // namespace
+// Whether the grid has a node spanning the two readings at end - 1 and end
+// with `value` among its unigrams.
+bool IsWordAt(const std::vector<ReadingGrid::Span>& spans, size_t end,
+              const std::string& value) {
+  if (end == 0 || spans[end - 1].maxLength() < 2) {
+    return false;
+  }
+  const ReadingGrid::NodePtr& node = spans[end - 1].nodeOf(2);
+  if (node == nullptr) {
+    return false;
+  }
+  for (const auto& u : node->unigrams()) {
+    if (u.value() == value) {
+      return true;
+    }
+  }
+  return false;
+}
 
-ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
-                                       const ContextModel& model,
-                                       const ContextualWalkOptions& options) {
+bool IsPunctuationReading(const std::string& reading) {
+  return !reading.empty() && reading[0] == '_';
+}
+
+// Whether one of `cues` (readings joined by "-", optionally ending in "$" to
+// require the end of the clause right after) starts at or after `from` in
+// `readings` before the next punctuation reading.
+bool CueFollows(const std::vector<std::string>& readings, size_t from,
+                const std::vector<std::string>& cues) {
+  for (size_t j = from; j < readings.size(); ++j) {
+    if (IsPunctuationReading(readings[j])) {
+      return false;
+    }
+    for (std::string cue : cues) {
+      bool atClauseEnd = !cue.empty() && cue.back() == '$';
+      if (atClauseEnd) {
+        cue.pop_back();
+      }
+      std::string joined;
+      size_t k = j;
+      while (k < readings.size() && joined.size() < cue.size()) {
+        if (!joined.empty()) {
+          joined += '-';
+        }
+        joined += readings[k++];
+      }
+      if (joined == cue &&
+          (!atClauseEnd || k == readings.size() ||
+           IsPunctuationReading(readings[k]))) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Values the walk should favor, keyed by reading.
+using PreferredValues = std::unordered_map<std::string, std::string>;
+
+ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
+                             const ContextualWalkOptions& options,
+                             const PreferredValues& preferred) {
   ReadingGrid::WalkResult result;
   const auto& spans = grid.spans();
   const size_t readingLen = grid.readings().size();
@@ -136,8 +209,27 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
 
   std::vector<Step> steps;
   std::vector<std::vector<Hypothesis>> chart(readingLen + 1);
-  Hypothesis initial{0.0, {}, {}, kNoParent};
+  const ContextModel* wordModel = options.wordModel;
+  const size_t wordContextLength =
+      wordModel != nullptr ? wordModel->contextLength() : 0;
+  Hypothesis initial{0.0, {}, {}, kNoParent, {}, {}};
   model.beginSentence(&initial.state);
+  if (wordModel != nullptr) {
+    wordModel->beginSentence(&initial.wordState);
+    // Only a Latin letter or digit right before the grid is known to be a
+    // whole token ("<x>"); a Han character may be the end of any word.
+    if (EndsWithAsciiAlnum(options.leftContext)) {
+      ContextModel::State out;
+      wordModel->score(initial.wordState, "x", &out);
+      initial.wordState = out;
+    }
+  }
+  // The left context is the same for every path, so only its state matters.
+  for (const auto& c : SplitCodePoints(options.leftContext)) {
+    ContextModel::State out;
+    model.score(initial.state, c, &out);
+    initial.state = out;
+  }
   chart[0].push_back(std::move(initial));
 
   size_t vertices = 0;
@@ -174,12 +266,36 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
                            : options.unigramWeight * node->score();
         choices.emplace_back(current, prior);
       } else {
+        double cueBonus = 0;
+        const std::string* cueValue = nullptr;
+        for (const auto& cue : options.longRangeCues) {
+          if (cue.reading == node->reading() &&
+              CueFollows(grid.readings(), i + spanLen, cue.cues)) {
+            cueValue = &cue.value;
+            cueBonus = cue.bonus;
+            break;
+          }
+        }
+        auto it = preferred.find(node->reading());
+        const std::string* favored =
+            it == preferred.end() ? nullptr : &it->second;
         size_t limit = std::min(unigrams.size(), options.maxUnigramsPerNode);
         for (size_t k = 0; k < limit; ++k) {
           if (k > 0 && !model.canRank(unigrams[k].value())) {
             continue;
           }
-          choices.emplace_back(k, options.unigramWeight * unigrams[k].score());
+          double prior = options.unigramWeight * unigrams[k].score();
+          if (auto bonus = options.valueBonuses.find(unigrams[k].value());
+              bonus != options.valueBonuses.end()) {
+            prior += bonus->second;
+          }
+          if (favored != nullptr && unigrams[k].value() == *favored) {
+            prior += options.consistencyBonus;
+          }
+          if (cueValue != nullptr && unigrams[k].value() == *cueValue) {
+            prior += cueBonus;
+          }
+          choices.emplace_back(k, prior);
         }
       }
 
@@ -187,9 +303,34 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
       for (const auto& [unigramIndex, prior] : choices) {
         std::vector<std::string> chars =
             SplitCodePoints(unigrams[unigramIndex].value());
+        bool doubledIsWord =
+            !chars.empty() && IsWordAt(spans, i, chars.front() + chars.front());
         for (const Hypothesis& h : chart[i]) {
-          Hypothesis next{h.score + prior + options.nodePenalty, h.state,
-                          h.tail, steps.size()};
+          Hypothesis next{h.score + prior + options.nodePenalty,
+                          h.state,
+                          h.tail,
+                          steps.size(),
+                          h.wordState,
+                          h.wordTail};
+          if (wordModel != nullptr) {
+            const std::string& word = unigrams[unigramIndex].value();
+            ContextModel::State out;
+            double wordScore = wordModel->score(h.wordState, word, &out);
+            if (options.wordModelContextOnly) {
+              wordScore -= wordModel->unigramScore(word);
+            }
+            next.score += options.wordWeight * wordScore;
+            next.wordState = out;
+            next.wordTail.push_back(word);
+            if (next.wordTail.size() > wordContextLength) {
+              next.wordTail.erase(next.wordTail.begin());
+            }
+          }
+          if (!chars.empty() && !h.tail.empty() &&
+              h.tail.back() == chars.front() && !doubledIsWord &&
+              model.canRank(chars.front())) {
+            next.score += options.repeatedCharacterPenalty;
+          }
           for (const auto& c : chars) {
             ContextModel::State out;
             next.score += model.score(next.state, c, &out);
@@ -208,10 +349,28 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
     }
   }
 
+  const std::vector<std::string> rightContext =
+      SplitCodePoints(options.rightContext);
   const Hypothesis* best = nullptr;
   double bestScore = -std::numeric_limits<double>::infinity();
   for (const Hypothesis& h : chart[readingLen]) {
-    double s = h.score + model.endSentence(h.state);
+    double s = h.score;
+    ContextModel::State state = h.state;
+    for (const auto& c : rightContext) {
+      ContextModel::State out;
+      s += model.score(state, c, &out);
+      state = out;
+    }
+    s += model.endSentence(state);
+    if (wordModel != nullptr) {
+      ContextModel::State wordState = h.wordState;
+      if (StartsWithAsciiAlnum(options.rightContext)) {
+        ContextModel::State out;
+        s += options.wordWeight * wordModel->score(wordState, "x", &out);
+        wordState = out;
+      }
+      s += options.wordWeight * wordModel->endSentence(wordState);
+    }
     if (s > bestScore) {
       bestScore = s;
       best = &h;
@@ -238,6 +397,60 @@ ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
   std::reverse(result.nodes.begin(), result.nodes.end());
   result.totalReadings = totalReadingLen;
   result.elapsedMicroseconds = NowInMicroseconds() - start;
+  return result;
+}
+
+// For every reading of two or more syllables that the walk resolved more than
+// once, the value it chose most often, if one value was chosen strictly more
+// often than any other.
+PreferredValues MajorityValues(const ReadingGrid::WalkResult& walk) {
+  std::unordered_map<std::string, std::unordered_map<std::string, size_t>>
+      counts;
+  for (const auto& node : walk.nodes) {
+    if (node->spanningLength() >= 2) {
+      ++counts[node->reading()][node->value()];
+    }
+  }
+  PreferredValues preferred;
+  for (const auto& [reading, values] : counts) {
+    std::string best;
+    size_t bestCount = 0;
+    bool tie = false;
+    for (const auto& [value, count] : values) {
+      if (count > bestCount) {
+        best = value;
+        bestCount = count;
+        tie = false;
+      } else if (count == bestCount) {
+        tie = true;
+      }
+    }
+    if (values.size() > 1 && bestCount >= 2 && !tie) {
+      preferred.emplace(reading, best);
+    }
+  }
+  return preferred;
+}
+
+}  // namespace
+
+ReadingGrid::WalkResult ContextualWalk(const ReadingGrid& grid,
+                                       const ContextModel& model,
+                                       const ContextualWalkOptions& options) {
+  ReadingGrid::WalkResult result = Walk(grid, model, options, {});
+  if (options.consistencyBonus == 0) {
+    return result;
+  }
+  // A word that recurs in the composition usually means the same thing each
+  // time: 拿旗子……沒拿旗子……變成[旗子]背在背後. Walk again, favoring the value
+  // chosen for most occurrences of a reading so the odd one out follows.
+  PreferredValues preferred = MajorityValues(result);
+  if (preferred.empty()) {
+    return result;
+  }
+  uint64_t firstElapsed = result.elapsedMicroseconds;
+  result = Walk(grid, model, options, preferred);
+  result.elapsedMicroseconds += firstElapsed;
   return result;
 }
 

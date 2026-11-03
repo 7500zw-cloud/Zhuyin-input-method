@@ -214,6 +214,27 @@ class McBopomofoInputMethodController: IMKInputController {
         })
     }
 
+    /// Up to four characters before the insertion point, or nil if the client
+    /// does not expose its text. A composition starting right after "這12"
+    /// can then choose 支 for ㄓ in 這12支影片.
+    private func textBeforeInsertionPoint(client: Any!) -> String? {
+        guard let textInput = client as? IMKTextInput else {
+            return nil
+        }
+        let selection = textInput.selectedRange()
+        if selection.location == NSNotFound || selection.location == 0 {
+            return nil
+        }
+        let length = min(selection.location, 8)
+        let range = NSRange(location: selection.location - length, length: length)
+        guard let text = textInput.attributedSubstring(from: range)?.string else {
+            return nil
+        }
+        // Text across a line break is unrelated to what is being typed.
+        let line = text.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).last ?? ""
+        return String(line.suffix(4))
+    }
+
     override func recognizedEvents(_ sender: Any!) -> Int {
         let events: NSEvent.EventTypeMask = [.keyDown, .keyUp, .flagsChanged]
         return Int(events.rawValue)
@@ -274,6 +295,10 @@ class McBopomofoInputMethodController: IMKInputController {
         let useVerticalMode =
             (attributes?["IMKTextOrientation"] as? NSNumber)?.intValue == 0 || false
         let input = KeyHandlerInput(event: event, isVerticalMode: useVerticalMode)
+
+        if state is InputState.Empty || state is InputState.EmptyIgnoringPreviousState {
+            keyHandler.leftContext = textBeforeInsertionPoint(client: client)
+        }
 
         let result = keyHandler.handle(input: input, state: state) { newState in
             self.handle(state: newState, client: client)

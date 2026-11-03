@@ -2,7 +2,7 @@ PYTHON ?= python3
 
 .PHONY: sort clean format typecheck analyze
 
-all: data.txt data-plain-bpmf.txt associated-phrases-v2.txt context-lm.bin
+all: data.txt data-plain-bpmf.txt associated-phrases-v2.txt context-lm.bin word-lm.bin
 
 install: all
 
@@ -50,8 +50,12 @@ PhraseFreq.txt: curation/builders/frequency_builder.py phrase.occ exclusion.txt
 context-lm.bin: $(wildcard context-lm/part-*)
 	@if ls context-lm/part-* >/dev/null 2>&1; then cat context-lm/part-* > $@; else : > $@; fi
 
+# Word-level model, split the same way (see word-lm/README.md).
+word-lm.bin: $(wildcard word-lm/part-*)
+	@if ls word-lm/part-* >/dev/null 2>&1; then cat word-lm/part-* > $@; else : > $@; fi
+
 clean:
-	rm -f data.txt data-raw.txt data-plain-bpmf.txt phrase.list context-lm.bin
+	rm -f data.txt data-raw.txt data-plain-bpmf.txt phrase.list context-lm.bin word-lm.bin
 
 # FOR INTERNAL USE
 _install: tidy sort check all

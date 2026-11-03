@@ -5,6 +5,8 @@ import PackageDescription
 
 let package = Package(
     name: "SystemCharacterInfo",
+    // SQLite.swift 0.16 and later need macOS 12; the app targets macOS 13.
+    platforms: [.macOS(.v12)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(

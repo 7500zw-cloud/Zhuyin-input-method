@@ -26,14 +26,18 @@
 // on the same dictionary.
 //
 // Usage:
-//   ContextualWalkEval data.txt [model.bin] [beam] [unigramWeight] [nodePenalty]
+//   ContextualWalkEval data.txt [model.bin] [beam] [unigramWeight] [nodePenalty] [repeatPenalty] [consistencyBonus]
+//     [wordModel.bin] [wordWeight]
 //     < testset.tsv > output.tsv
 // Without model.bin, the original unigram walk is used. The test set is a TSV
 // with a header; column 1 is the id and column 4 the space-separated readings.
+// An optional column named "left" gives the text before the composition.
 
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -51,11 +55,20 @@ using Formosa::Gramambular2::ReadingGrid;
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     std::cerr << "usage: " << argv[0]
-              << " data.txt [model.bin] [beam] [unigramWeight] [nodePenalty]\n";
+              << " data.txt [model.bin] [beam] [unigramWeight] [nodePenalty]"
+                 " [repeatPenalty] [consistencyBonus] [wordModel.bin]"
+                 " [wordWeight]\n";
     return 1;
   }
   auto lm = std::make_shared<McBopomofo::McBopomofoLM>();
   lm->loadLanguageModel(argv[1]);
+  // NASAL_TOLERANCE=1 turns on the ㄣ/ㄥ tolerance, as in the input method.
+  const char* nasal = std::getenv("NASAL_TOLERANCE");
+  const char* nasalPenalty = std::getenv("NASAL_PENALTY");
+  if (nasal != nullptr && nasal[0] == '1') {
+    lm->setNasalFinalTolerance(
+        true, nasalPenalty != nullptr ? std::stod(nasalPenalty) : -8.0);
+  }
   if (!lm->isDataModelLoaded()) {
     std::cerr << "cannot load " << argv[1] << "\n";
     return 1;
@@ -72,10 +85,34 @@ int main(int argc, char* argv[]) {
   if (argc >= 4) options.beamWidth = std::stoul(argv[3]);
   if (argc >= 5) options.unigramWeight = std::stod(argv[4]);
   if (argc >= 6) options.nodePenalty = std::stod(argv[5]);
+  if (argc >= 7) options.repeatedCharacterPenalty = std::stod(argv[6]);
+  if (argc >= 8) options.consistencyBonus = std::stod(argv[7]);
+  std::unique_ptr<McBopomofo::KenLMContextModel> wordModel;
+  if (argc >= 9) {
+    wordModel = McBopomofo::KenLMContextModel::Load(argv[8]);
+    if (wordModel == nullptr) {
+      std::cerr << "cannot load " << argv[8] << "\n";
+      return 1;
+    }
+    options.wordModel = wordModel.get();
+  }
+  if (argc >= 10) options.wordWeight = std::stod(argv[9]);
+  // WORD_CONTEXT_ONLY=0 scores the word model's full probabilities.
+  if (const char* v = std::getenv("WORD_CONTEXT_ONLY")) {
+    options.wordModelContextOnly = v[0] != '0';
+  }
 
   ReadingGrid grid(lm);
   std::string line;
   std::getline(std::cin, line);  // header
+  size_t leftColumn = std::numeric_limits<size_t>::max();
+  {
+    std::stringstream header(line);
+    std::string name;
+    for (size_t k = 0; std::getline(header, name, '\t'); ++k) {
+      if (name == "left") leftColumn = k;
+    }
+  }
   size_t sentences = 0;
   size_t missing = 0;
   uint64_t totalMicros = 0;
@@ -89,6 +126,7 @@ int main(int argc, char* argv[]) {
 
     grid.clear();
     bool ok = true;
+    options.leftContext = leftColumn < cols.size() ? cols[leftColumn] : "";
     std::stringstream readings(cols[3]);
     std::string reading;
     while (readings >> reading) {

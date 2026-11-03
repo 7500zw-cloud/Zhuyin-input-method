@@ -38,6 +38,7 @@ static McBopomofo::McBopomofoLM gLanguageModelPlainBopomofo;
 static McBopomofo::UserOverrideModel gUserOverrideModel(kUserOverrideModelCapacity, kObservedOverrideHalflife);
 static McBopomofo::VariantAnnotator gVariantAnnotator;
 static std::unique_ptr<McBopomofo::KenLMContextModel> gContextModel;
+static std::unique_ptr<McBopomofo::KenLMContextModel> gWordModel;
 static BOOL gContextModelLoadAttempted = NO;
 
 static NSString *const kUserDataTemplateName = @"template-data";
@@ -85,6 +86,13 @@ static void LTLoadVariantAnnotatorData()
     }
 }
 
+// Typing ㄣ for ㄥ (or the reverse) in a phrase still finds the phrase, e.g.
+// ㄌㄧㄣˊ-ㄔㄥˊ for 凌晨. Only the McBopomofo mode; plain Bopomofo stays exact.
+static void LTEnableNasalFinalTolerance()
+{
+    gLanguageModelMcBopomofo.setNasalFinalTolerance(true);
+}
+
 static void LTLoadContextModel()
 {
     if (gContextModelLoadAttempted) {
@@ -100,6 +108,15 @@ static void LTLoadContextModel()
     gContextModel = McBopomofo::KenLMContextModel::Load(dataPath.UTF8String);
     if (gContextModel == nullptr) {
         NSLog(@"Failed to load %@; contextual conversion is disabled", dataPath);
+        return;
+    }
+    // The word model is optional; without it, only the character model is used.
+    NSString *wordDataPath = [[NSBundle bundleForClass:cls] pathForResource:@"word-lm" ofType:@"bin"];
+    if (wordDataPath != nil) {
+        gWordModel = McBopomofo::KenLMContextModel::Load(wordDataPath.UTF8String);
+        if (gWordModel == nullptr) {
+            NSLog(@"Failed to load %@; the word model is not used", wordDataPath);
+        }
     }
 }
 
@@ -108,6 +125,7 @@ static void LTLoadContextModel()
     if (!gLanguageModelMcBopomofo.isDataModelLoaded()) {
         LTLoadLanguageModelFile(@"data", gLanguageModelMcBopomofo);
     }
+    LTEnableNasalFinalTolerance();
     if (!gLanguageModelMcBopomofo.isAssociatedPhrasesV2Loaded()) {
         LTLoadAssociatedPhrases(gLanguageModelMcBopomofo);
     }
@@ -130,6 +148,7 @@ static void LTLoadContextModel()
         if (!gLanguageModelMcBopomofo.isDataModelLoaded()) {
             LTLoadLanguageModelFile(@"data", gLanguageModelMcBopomofo);
         }
+        LTEnableNasalFinalTolerance();
         if (!gLanguageModelMcBopomofo.isAssociatedPhrasesV2Loaded()) {
             LTLoadAssociatedPhrases(gLanguageModelMcBopomofo);
         }
@@ -495,6 +514,11 @@ static void LTLoadContextModel()
 + (McBopomofo::KenLMContextModel *)contextModel
 {
     return gContextModel.get();
+}
+
++ (McBopomofo::KenLMContextModel *)wordModel
+{
+    return gWordModel.get();
 }
 
 + (BOOL)phraseReplacementEnabled

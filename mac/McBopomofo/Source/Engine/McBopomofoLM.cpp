@@ -24,9 +24,11 @@
 #include "McBopomofoLM.h"
 
 #include <algorithm>
+#include <cstring>
 #include <limits>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -135,8 +137,100 @@ std::vector<McBopomofoLM::UserFileIssue> McBopomofoLM::getUserFileIssues()
   return issues;
 }
 
+namespace {
+
+// The readings obtained by swapping ㄣ and ㄥ at the end of any of the
+// syllables (before the tone mark) of a "-"-separated reading, excluding the
+// reading itself.
+std::vector<std::string> NasalFinalVariants(const std::string& key) {
+  static const std::string kEn = "ㄣ";
+  static const std::string kEng = "ㄥ";
+  // Byte offsets of the ㄣ or ㄥ that end a syllable's rhyme.
+  std::vector<size_t> positions;
+  size_t start = 0;
+  while (start <= key.size()) {
+    size_t end = key.find('-', start);
+    if (end == std::string::npos) {
+      end = key.size();
+    }
+    std::string syllable = key.substr(start, end - start);
+    // Tone marks ˊˇˋ˙ are two bytes each in UTF-8; the first tone is unmarked.
+    size_t rhymeEnd = syllable.size();
+    for (const char* tone : {"ˊ", "ˇ", "ˋ", "˙"}) {
+      size_t len = std::strlen(tone);
+      if (syllable.size() >= len &&
+          syllable.compare(syllable.size() - len, len, tone) == 0) {
+        rhymeEnd = syllable.size() - len;
+        break;
+      }
+    }
+    if (rhymeEnd >= kEn.size()) {
+      std::string last = syllable.substr(rhymeEnd - kEn.size(), kEn.size());
+      if (last == kEn || last == kEng) {
+        positions.push_back(start + rhymeEnd - kEn.size());
+      }
+    }
+    start = end + 1;
+  }
+  std::vector<std::string> variants;
+  if (positions.empty() || positions.size() > 4) {
+    return variants;
+  }
+  for (size_t mask = 1; mask < (1U << positions.size()); ++mask) {
+    std::string variant = key;
+    for (size_t i = 0; i < positions.size(); ++i) {
+      if (mask & (1U << i)) {
+        std::string current = variant.substr(positions[i], kEn.size());
+        variant.replace(positions[i], kEn.size(), current == kEn ? kEng : kEn);
+      }
+    }
+    variants.push_back(std::move(variant));
+  }
+  return variants;
+}
+
+}  // namespace
+
+void McBopomofoLM::setNasalFinalTolerance(bool enabled, double penalty) {
+  nasalFinalTolerance_ = enabled;
+  nasalFinalPenalty_ = penalty;
+}
+
+bool McBopomofoLM::nasalFinalTolerance() const { return nasalFinalTolerance_; }
+
 std::vector<Formosa::Gramambular2::LanguageModel::Unigram>
 McBopomofoLM::getUnigrams(const std::string& key) {
+  auto unigrams = getExactUnigrams(key);
+  if (!nasalFinalTolerance_ || !unigrams.empty() || key.empty() ||
+      key[0] == '_' ||
+      key.find(Formosa::Gramambular2::ReadingGrid::kDefaultSeparator) ==
+          std::string::npos) {
+    return unigrams;
+  }
+  // The typed reading has no phrase; offer the phrases of its ㄣ/ㄥ variants.
+  std::unordered_map<std::string, double> best;
+  for (const auto& variant : NasalFinalVariants(key)) {
+    for (const auto& u : getExactUnigrams(variant)) {
+      double score = u.score() + nasalFinalPenalty_;
+      auto it = best.find(u.value());
+      if (it == best.end() || score > it->second) {
+        best[u.value()] = score;
+      }
+    }
+  }
+  for (const auto& [value, score] : best) {
+    unigrams.emplace_back(value, score);
+  }
+  std::stable_sort(unigrams.begin(), unigrams.end(),
+                   [](const auto& a, const auto& b) {
+                     return a.score() > b.score() ||
+                            (a.score() == b.score() && a.value() < b.value());
+                   });
+  return unigrams;
+}
+
+std::vector<Formosa::Gramambular2::LanguageModel::Unigram>
+McBopomofoLM::getExactUnigrams(const std::string& key) {
   if (key == " ") {
     std::vector<Formosa::Gramambular2::LanguageModel::Unigram> spaceUnigrams;
     spaceUnigrams.emplace_back(" ", 0);

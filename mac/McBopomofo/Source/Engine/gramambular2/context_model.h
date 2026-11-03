@@ -55,6 +55,13 @@ class ContextModel {
   // Returns log10 P(end of sentence | state).
   virtual double endSentence(const State& in) const = 0;
 
+  // Returns log10 P(token) without any context. Used to take a word's own
+  // frequency out of a word model's score, leaving only what the context
+  // adds, since the dictionary already accounts for the frequency.
+  [[nodiscard]] virtual double unigramScore(const std::string& /*token*/) const {
+    return 0;
+  }
+
   // Whether the model can tell this value apart from other values. A walk
   // only lets the model choose among a node's unigrams that it can rank; for
   // the rest (e.g. punctuation and symbols a character model never saw) the

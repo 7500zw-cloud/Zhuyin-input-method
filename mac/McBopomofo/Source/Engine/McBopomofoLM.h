@@ -101,6 +101,13 @@ class McBopomofoLM : public Formosa::Gramambular2::LanguageModel {
   void setPhraseReplacementEnabled(bool enabled);
   bool phraseReplacementEnabled() const;
 
+  // When enabled, a reading of two or more syllables that has no phrase of
+  // its own also offers the phrases found by swapping ㄣ and ㄥ in its
+  // syllables, scored lower by the penalty (a log10 amount). Typing ㄌㄧㄣˊ-ㄔㄥˊ then
+  // offers 凌晨 (ㄌㄧㄥˊ-ㄔㄣˊ), and ㄑㄧㄥ-ㄈㄢˋ offers 侵犯.
+  void setNasalFinalTolerance(bool enabled, double penalty = -8.0);
+  bool nasalFinalTolerance() const;
+
   void setExternalConverterEnabled(bool enabled);
   bool externalConverterEnabled() const;
   void setExternalConverter(
@@ -147,6 +154,10 @@ class McBopomofoLM : public Formosa::Gramambular2::LanguageModel {
   // Filters and converts the input unigrams and returns a new list of unigrams.
   // Unigrams whose values are found in `excludedValues` are removed, and the
   // kept values will be inserted to the `insertedValues` set.
+  // The unigrams for exactly this reading, without the ㄣ/ㄥ tolerance.
+  std::vector<Formosa::Gramambular2::LanguageModel::Unigram> getExactUnigrams(
+      const std::string& key);
+
   std::vector<Formosa::Gramambular2::LanguageModel::Unigram>
   filterAndTransformUnigrams(
       const std::vector<Formosa::Gramambular2::LanguageModel::Unigram>&
@@ -165,6 +176,8 @@ class McBopomofoLM : public Formosa::Gramambular2::LanguageModel {
   std::optional<std::filesystem::path> phraseReplacementPath_;
 
   bool phraseReplacementEnabled_ = false;
+  bool nasalFinalTolerance_ = false;
+  double nasalFinalPenalty_ = -8.0;
 
   bool externalConverterEnabled_ = false;
   std::function<std::string(const std::string&)> externalConverter_;

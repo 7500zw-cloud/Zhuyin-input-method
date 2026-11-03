@@ -19,9 +19,9 @@ python3 lm/extract_ptt.py "$C/ptt/data/Gossiping-QA-Dataset-2_0.csv" > "$C/ptt.t
 awk 'NR%50==0' "$C/ptt.txt" > "$C/ptt_heldout.txt"
 awk 'NR%50!=0' "$C/ptt.txt" > "$C/ptt_train.txt"
 
-# PTT 重複 3 次，提高口語的比重
-(cat "$C/wiki.txt"; for i in 1 2 3; do cat "$C/ptt_train.txt"; done) |
-  lmplz -o 5 --prune 0 0 1 1 2 -S 50% -T "$C/" --discount_fallback > "$C/char5.arpa"
-build_binary -q 8 -b 8 trie "$C/char5.arpa" "$C/char5.bin"
+# PTT 重複 6 次，提高口語的比重；輸入法內附的模型即此設定（mac/McBopomofo/Source/Data/context-lm）
+(cat "$C/wiki.txt"; for i in 1 2 3 4 5 6; do cat "$C/ptt_train.txt"; done) |
+  lmplz -o 5 --prune 0 2 4 6 8 -S 50% -T "$C/" --discount_fallback > "$C/char5.arpa"
+build_binary -q 8 -b 8 -a 22 trie "$C/char5.arpa" "$C/char5.bin"
 rm "$C/char5.arpa"
 python3 lm/make_dev.py "$C/wiki_heldout.txt" "$C/ptt_heldout.txt"

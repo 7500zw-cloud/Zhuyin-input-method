@@ -25,6 +25,9 @@
 #define SRC_ENGINE_GRAMAMBULAR2_CONTEXTUAL_WALK_H_
 
 #include <cstddef>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "context_model.h"
 #include "reading_grid.h"
@@ -40,6 +43,69 @@ struct ContextualWalkOptions {
   double unigramWeight = 0.4;
   // Added once per node on the path. Negative values favor longer phrases.
   double nodePenalty = 0.0;
+  // Added to these values wherever they are a candidate. The models are
+  // trained mostly on Wikipedia, where some words are far more common than in
+  // everyday typing (逝世 in biographies), so a colloquial homophone such as
+  // 試試 loses even in 你用這個指令試試. The dictionary already ranks these
+  // higher; the bonus keeps the models from overturning it without context.
+  std::unordered_map<std::string, double> valueBonuses = {
+      {"試試", 1.5},
+  };
+  // An optional word-level model, scored once per node with the node's whole
+  // value as the token, on top of the character model. It knows that 支 goes
+  // with 影片 and 比重 with 多, which a character model often cannot tell.
+  const ContextModel* wordModel = nullptr;
+  // Weight of the word model's log10 probabilities.
+  double wordWeight = 0.75;
+  // Whether to subtract each word's context-free probability from the word
+  // model's score, so that it contributes only how well a word fits its
+  // neighbors. Off: on the dev set and held-out paragraphs it overrates rare
+  // words and single characters (dev 499 -> 494, paragraphs 386 -> 376).
+  bool wordModelContextOnly = false;
+  // Text known to come right before the grid, such as the end of what was
+  // already committed in the document ("這12" before ㄓ ㄧㄥˇ ㄆㄧㄢˋ). It
+  // conditions the first characters of every path.
+  std::string leftContext;
+  // Text known to follow the grid, such as a Latin letter that is about to be
+  // typed right after the composition. It is scored after every complete path
+  // so that, e.g., 跟 can win over 根 before an English word.
+  std::string rightContext;
+  // Added when a node starts with the same character the path ends with and
+  // the doubled character is not itself a word in the grid, as in 你是是這個
+  // for 你試試這個. A character model has seen such typos often enough not to
+  // rule them out, while real reduplications (試試, 看看) are dictionary words.
+  double repeatedCharacterPenalty = -1.5;
+  // Added to a word for a reading that occurs several times in the
+  // composition, when that word was chosen for most of the occurrences, so a
+  // recurring word is converted the same way each time.
+  double consistencyBonus = 2.0;
+  // A word the model cannot tell apart from its homophones because the cue
+  // that decides it comes later in the clause than the model can see, as 像
+  // in 要像人口那種動畫一樣 (向 otherwise). A node whose reading is exactly
+  // `reading` gets `bonus` for `value` when one of `cues` (readings joined by
+  // "-") follows it before the next punctuation mark. A cue ending in "$" must
+  // also end the clause, so 一樣 in 向老師借一樣東西 is not a cue.
+  struct LongRangeCue {
+    std::string reading;
+    std::string value;
+    std::vector<std::string> cues;
+    double bonus;
+  };
+  std::vector<LongRangeCue> longRangeCues = {
+      {"ㄒㄧㄤˋ", "像", {"ㄧ-ㄧㄤˋ$", "ㄧ-ㄧㄤˋ-ㄉㄜ˙", "ㄙˋ-ㄉㄜ˙"}, 1.5},
+      // 穿八號衣服, not 川八號衣服.
+      {"ㄔㄨㄢ", "穿",
+       {"ㄧ-ㄈㄨˊ", "ㄎㄨˋ-ㄗ˙", "ㄒㄧㄝˊ-ㄗ˙", "ㄑㄩㄣˊ-ㄗ˙", "ㄨㄞˋ-ㄊㄠˋ",
+        "ㄨㄚˋ-ㄗ˙"},
+       1.5},
+      // 把截圖貼進對話視窗內, not 貼近: 進 when the clause ends in 內 or 裡.
+      {"ㄊㄧㄝ-ㄐㄧㄣˋ", "貼進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄌㄚ-ㄐㄧㄣˋ", "拉進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄗㄡˇ-ㄐㄧㄣˋ", "走進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄑㄧㄝ-ㄐㄧㄣˋ", "切進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄧㄚ-ㄐㄧㄣˋ", "壓進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄎㄞ-ㄐㄧㄣˋ", "開進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+  };
 };
 
 // Finds the most likely path through the grid by scoring whole sentences with
