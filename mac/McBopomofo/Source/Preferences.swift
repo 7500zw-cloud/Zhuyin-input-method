@@ -345,9 +345,10 @@ class Preferences: NSObject {
     @objc static var contextualConversionEnabled: Bool
 
     /// Whether to read a few characters before the cursor from the app when a
-    /// composition starts, to use them as context. Some web-based apps do not
-    /// handle these reads well, so it can be turned off.
-    @UserDefault(key: kReadTextBeforeCursorKey, defaultValue: true)
+    /// composition starts, to use them as context (這12 before ㄓ ㄧㄥˇ ㄆㄧㄢˋ).
+    /// Off by default: in a web-based chat app (Grok) these reads made typed
+    /// text get committed twice.
+    @UserDefault(key: kReadTextBeforeCursorKey, defaultValue: false)
     @objc static var readTextBeforeCursor: Bool
 
     // MARK: Optional settings
