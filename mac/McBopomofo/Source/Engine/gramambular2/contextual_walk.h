@@ -57,6 +57,11 @@ struct ContextualWalkOptions {
   const ContextModel* wordModel = nullptr;
   // Weight of the word model's log10 probabilities.
   double wordWeight = 0.75;
+  // Whether to subtract each word's context-free probability from the word
+  // model's score, so that it contributes only how well a word fits its
+  // neighbors. Off: on the dev set and held-out paragraphs it overrates rare
+  // words and single characters (dev 499 -> 494, paragraphs 386 -> 376).
+  bool wordModelContextOnly = false;
   // Text known to come right before the grid, such as the end of what was
   // already committed in the document ("這12" before ㄓ ㄧㄥˇ ㄆㄧㄢˋ). It
   // conditions the first characters of every path.
@@ -94,12 +99,12 @@ struct ContextualWalkOptions {
         "ㄨㄚˋ-ㄗ˙"},
        1.5},
       // 把截圖貼進對話視窗內, not 貼近: 進 when the clause ends in 內 or 裡.
-      {"ㄊㄧㄝ-ㄐㄧㄣˋ", "貼進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 4.0},
-      {"ㄌㄚ-ㄐㄧㄣˋ", "拉進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 4.0},
-      {"ㄗㄡˇ-ㄐㄧㄣˋ", "走進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 4.0},
-      {"ㄑㄧㄝ-ㄐㄧㄣˋ", "切進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 4.0},
-      {"ㄧㄚ-ㄐㄧㄣˋ", "壓進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 4.0},
-      {"ㄎㄞ-ㄐㄧㄣˋ", "開進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 4.0},
+      {"ㄊㄧㄝ-ㄐㄧㄣˋ", "貼進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄌㄚ-ㄐㄧㄣˋ", "拉進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄗㄡˇ-ㄐㄧㄣˋ", "走進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄑㄧㄝ-ㄐㄧㄣˋ", "切進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄧㄚ-ㄐㄧㄣˋ", "壓進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
+      {"ㄎㄞ-ㄐㄧㄣˋ", "開進", {"ㄋㄟˋ$", "ㄌㄧˇ$", "ㄌㄧˇ-ㄇㄧㄢˋ$"}, 6.0},
   };
 };
 

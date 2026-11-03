@@ -97,6 +97,10 @@ int main(int argc, char* argv[]) {
     options.wordModel = wordModel.get();
   }
   if (argc >= 10) options.wordWeight = std::stod(argv[9]);
+  // WORD_CONTEXT_ONLY=0 scores the word model's full probabilities.
+  if (const char* v = std::getenv("WORD_CONTEXT_ONLY")) {
+    options.wordModelContextOnly = v[0] != '0';
+  }
 
   ReadingGrid grid(lm);
   std::string line;

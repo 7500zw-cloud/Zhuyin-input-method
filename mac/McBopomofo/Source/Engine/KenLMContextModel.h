@@ -50,6 +50,7 @@ class KenLMContextModel : public Formosa::Gramambular2::ContextModel {
   double score(const State& in, const std::string& character,
                State* out) const override;
   double endSentence(const State& in) const override;
+  [[nodiscard]] double unigramScore(const std::string& token) const override;
   // True if the value contains at least one Han character.
   [[nodiscard]] bool canRank(const std::string& value) const override;
   [[nodiscard]] size_t contextLength() const override;

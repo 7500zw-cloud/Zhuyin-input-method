@@ -156,6 +156,14 @@ double KenLMContextModel::endSentence(const State& in) const {
                                  unused.bytes.data());
 }
 
+double KenLMContextModel::unigramScore(const std::string& token) const {
+  State empty;
+  impl_->model->NullContextWrite(empty.bytes.data());
+  empty.bytes[kAfterOtherFlag] = 0;
+  State unused;
+  return score(empty, token, &unused);
+}
+
 bool KenLMContextModel::canRank(const std::string& value) const {
   size_t i = 0;
   while (i < value.size()) {

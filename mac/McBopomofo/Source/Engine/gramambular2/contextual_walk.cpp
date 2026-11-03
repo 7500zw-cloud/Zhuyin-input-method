@@ -315,8 +315,11 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
           if (wordModel != nullptr) {
             const std::string& word = unigrams[unigramIndex].value();
             ContextModel::State out;
-            next.score +=
-                options.wordWeight * wordModel->score(h.wordState, word, &out);
+            double wordScore = wordModel->score(h.wordState, word, &out);
+            if (options.wordModelContextOnly) {
+              wordScore -= wordModel->unigramScore(word);
+            }
+            next.score += options.wordWeight * wordScore;
             next.wordState = out;
             next.wordTail.push_back(word);
             if (next.wordTail.size() > wordContextLength) {
