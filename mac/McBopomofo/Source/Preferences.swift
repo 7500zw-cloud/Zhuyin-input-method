@@ -41,6 +41,7 @@ private let kHalfWidthPunctuationEnabledKey = "HalfWidthPunctuationEnable"
 private let kEscToCleanInputBufferKey = "EscToCleanInputBuffer"
 private let kKeepReadingUponCompositionError = "KeepReadingUponCompositionError"
 private let kContextualConversionEnabledKey = "ContextualConversionEnabled"
+private let kReadTextBeforeCursorKey = "ReadTextBeforeCursor"
 
 private let kCandidateTextFontName = "CandidateTextFontName"
 private let kCandidateKeyLabelFontName = "CandidateKeyLabelFontName"
@@ -233,6 +234,7 @@ class Preferences: NSObject {
             kEscToCleanInputBufferKey,
             kKeepReadingUponCompositionError,
             kContextualConversionEnabledKey,
+            kReadTextBeforeCursorKey,
             kCandidateTextFontName,
             kCandidateKeyLabelFontName,
             kCandidateKeys,
@@ -341,6 +343,13 @@ class Preferences: NSObject {
     /// language model (context-lm.bin) instead of only phrase frequencies.
     @UserDefault(key: kContextualConversionEnabledKey, defaultValue: true)
     @objc static var contextualConversionEnabled: Bool
+
+    /// Whether to read a few characters before the cursor from the app when a
+    /// composition starts, to use them as context (這12 before ㄓ ㄧㄥˇ ㄆㄧㄢˋ).
+    /// Off by default: in a web-based chat app (Grok) these reads made typed
+    /// text get committed twice.
+    @UserDefault(key: kReadTextBeforeCursorKey, defaultValue: false)
+    @objc static var readTextBeforeCursor: Bool
 
     // MARK: Optional settings
 

@@ -218,7 +218,7 @@ class McBopomofoInputMethodController: IMKInputController {
     /// does not expose its text. A composition starting right after "這12"
     /// can then choose 支 for ㄓ in 這12支影片.
     private func textBeforeInsertionPoint(client: Any!) -> String? {
-        guard let textInput = client as? IMKTextInput else {
+        guard Preferences.readTextBeforeCursor, let textInput = client as? IMKTextInput else {
             return nil
         }
         let selection = textInput.selectedRange()
