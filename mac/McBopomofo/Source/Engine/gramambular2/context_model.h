@@ -55,6 +55,12 @@ class ContextModel {
   // Returns log10 P(end of sentence | state).
   virtual double endSentence(const State& in) const = 0;
 
+  // Whether the model has seen this token. A word model may not know a phrase
+  // that was added to the dictionary after it was trained.
+  [[nodiscard]] virtual bool knows(const std::string& /*token*/) const {
+    return true;
+  }
+
   // Returns log10 P(token) without any context. Used to take a word's own
   // frequency out of a word model's score, leaving only what the context
   // adds, since the dictionary already accounts for the frequency.

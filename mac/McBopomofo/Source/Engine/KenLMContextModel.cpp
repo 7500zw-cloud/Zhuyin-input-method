@@ -164,6 +164,15 @@ double KenLMContextModel::unigramScore(const std::string& token) const {
   return score(empty, token, &unused);
 }
 
+bool KenLMContextModel::knows(const std::string& token) const {
+  char32_t cp = FirstCodePoint(token);
+  if (!IsHan(cp)) {
+    return true;  // punctuation, "<x>" and the like have their own handling
+  }
+  return impl_->model->BaseVocabulary().Index(token) !=
+         impl_->model->BaseVocabulary().NotFound();
+}
+
 bool KenLMContextModel::canRank(const std::string& value) const {
   size_t i = 0;
   while (i < value.size()) {

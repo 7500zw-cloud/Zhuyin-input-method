@@ -314,15 +314,26 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
                           h.wordTail};
           if (wordModel != nullptr) {
             const std::string& word = unigrams[unigramIndex].value();
-            ContextModel::State out;
-            double wordScore = wordModel->score(h.wordState, word, &out);
-            if (options.wordModelContextOnly) {
-              wordScore -= wordModel->unigramScore(word);
+            // A phrase the word model has never seen (one added to the
+            // dictionary after training, such as 走期) is scored one character
+            // at a time instead of as <unk>, which would almost always lose.
+            std::vector<std::string> tokens;
+            if (chars.size() > 1 && !wordModel->knows(word)) {
+              tokens = chars;
+            } else {
+              tokens.push_back(word);
             }
-            next.score += options.wordWeight * wordScore;
-            next.wordState = out;
-            next.wordTail.push_back(word);
-            if (next.wordTail.size() > wordContextLength) {
+            for (const auto& token : tokens) {
+              ContextModel::State out;
+              double wordScore = wordModel->score(next.wordState, token, &out);
+              if (options.wordModelContextOnly) {
+                wordScore -= wordModel->unigramScore(token);
+              }
+              next.score += options.wordWeight * wordScore;
+              next.wordState = out;
+              next.wordTail.push_back(token);
+            }
+            while (next.wordTail.size() > wordContextLength) {
               next.wordTail.erase(next.wordTail.begin());
             }
           }
