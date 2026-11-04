@@ -48,6 +48,14 @@ struct ContextualWalkOptions {
   // everyday typing (逝世 in biographies), so a colloquial homophone such as
   // 試試 loses even in 你用這個指令試試. The dictionary already ranks these
   // higher; the bonus keeps the models from overturning it without context.
+  // Added to a unigram whose score is exactly `rareReadingScore`, the score
+  // the dictionary gives a character's secondary reading (信 read ㄕㄣ, as in
+  // 信 for 伸). The character model scores the character, not the reading, so
+  // rare readings compete with full weight (信虎 for ㄕㄣ ㄏㄨ, from 武田信虎).
+  // -2 raised the dev set 498 -> 500 and the 800 held-out paragraphs
+  // 385 -> 394; larger penalties were worse overall.
+  double rareReadingScore = -6.8;
+  double rareReadingPenalty = -2.0;
   std::unordered_map<std::string, double> valueBonuses = {
       {"試試", 1.5},
   };

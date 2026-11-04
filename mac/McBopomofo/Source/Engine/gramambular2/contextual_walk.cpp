@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <chrono>
 #include <limits>
 #include <string>
@@ -285,6 +286,9 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
             continue;
           }
           double prior = options.unigramWeight * unigrams[k].score();
+          if (std::abs(unigrams[k].score() - options.rareReadingScore) < 1e-6) {
+            prior += options.rareReadingPenalty;
+          }
           if (auto bonus = options.valueBonuses.find(unigrams[k].value());
               bonus != options.valueBonuses.end()) {
             prior += bonus->second;
