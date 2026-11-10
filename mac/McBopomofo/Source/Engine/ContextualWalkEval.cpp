@@ -97,6 +97,15 @@ int main(int argc, char* argv[]) {
     options.wordModel = wordModel.get();
   }
   if (argc >= 10) options.wordWeight = std::stod(argv[9]);
+  // VALUE_BONUS=跟:1.0 adds or overrides one entry of valueBonuses.
+  if (const char* v = std::getenv("VALUE_BONUS")) {
+    std::string spec(v);
+    size_t colon = spec.rfind(':');
+    if (colon != std::string::npos) {
+      options.valueBonuses[spec.substr(0, colon)] =
+          std::stod(spec.substr(colon + 1));
+    }
+  }
   if (const char* v = std::getenv("RARE_READING_PENALTY")) {
     options.rareReadingPenalty = std::stod(v);
   }
