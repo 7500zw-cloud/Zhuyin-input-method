@@ -61,6 +61,9 @@ struct ContextualWalkOptions {
       // 跟 alone (ㄍㄣ) or after a comma: 根 wins there because of 根據 and
       // 根本. Contexts such as 一根菸, 樹的根 and 兩根香蕉 keep 根.
       {"跟", 1.0},
+      // ㄇㄚ alone becomes 嗎 rather than 媽; 你好嗎, 我媽媽, 你媽說 and
+      // 他媽的 are decided by their context either way.
+      {"嗎", 0.5},
   };
   // An optional word-level model, scored once per node with the node's whole
   // value as the token, on top of the character model. It knows that 支 goes
