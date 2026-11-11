@@ -42,6 +42,7 @@ private let kEscToCleanInputBufferKey = "EscToCleanInputBuffer"
 private let kKeepReadingUponCompositionError = "KeepReadingUponCompositionError"
 private let kContextualConversionEnabledKey = "ContextualConversionEnabled"
 private let kReadTextBeforeCursorKey = "ReadTextBeforeCursor"
+private let kRecoverDroppedCompositionKey = "RecoverDroppedComposition"
 
 private let kCandidateTextFontName = "CandidateTextFontName"
 private let kCandidateKeyLabelFontName = "CandidateKeyLabelFontName"
@@ -235,6 +236,7 @@ class Preferences: NSObject {
             kKeepReadingUponCompositionError,
             kContextualConversionEnabledKey,
             kReadTextBeforeCursorKey,
+            kRecoverDroppedCompositionKey,
             kCandidateTextFontName,
             kCandidateKeyLabelFontName,
             kCandidateKeys,
@@ -350,6 +352,11 @@ class Preferences: NSObject {
     /// text get committed twice.
     @UserDefault(key: kReadTextBeforeCursorKey, defaultValue: false)
     @objc static var readTextBeforeCursor: Bool
+
+    /// Whether to start a new composition when Safari has already kept the
+    /// marked text on its own, instead of committing it a second time.
+    @UserDefault(key: kRecoverDroppedCompositionKey, defaultValue: true)
+    @objc static var recoverDroppedComposition: Bool
 
     // MARK: Optional settings
 

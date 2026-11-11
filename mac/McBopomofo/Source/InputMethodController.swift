@@ -214,6 +214,22 @@ class McBopomofoInputMethodController: IMKInputController {
         })
     }
 
+    /// Whether a WebKit browser has dropped our marked text while we are still
+    /// composing. Limited to Safari, whose marked range is reliable; other
+    /// clients are never second-guessed. Can be turned off with the
+    /// RecoverDroppedComposition default.
+    private func compositionWasTakenByClient(_ client: Any!) -> Bool {
+        guard Preferences.recoverDroppedComposition,
+              let textInput = client as? IMKTextInput,
+              let bundleID = textInput.bundleIdentifier(),
+              bundleID.hasPrefix("com.apple.Safari")
+        else {
+            return false
+        }
+        let marked = textInput.markedRange()
+        return marked.location == NSNotFound || marked.length == 0
+    }
+
     /// Up to four characters before the insertion point, or nil if the client
     /// does not expose its text. A composition starting right after "這12"
     /// can then choose 支 for ㄓ in 這12支影片.
@@ -298,6 +314,20 @@ class McBopomofoInputMethodController: IMKInputController {
 
         if state is InputState.Empty || state is InputState.EmptyIgnoringPreviousState {
             keyHandler.leftContext = textBeforeInsertionPoint(client: client)
+        }
+
+        // Safari sometimes keeps the marked text as ordinary text on its own,
+        // for example in Grok's chat box: ㄉㄠ4 appeared as typed text and the
+        // whole composition was then committed a second time. If the client no
+        // longer has marked text while we are still composing, the composition
+        // is already in the document: start afresh instead of committing it
+        // again.
+        if state is InputState.Inputting, compositionWasTakenByClient(client) {
+            // Only our own state is reset: the client has no marked text left
+            // to clear, and committing or unmarking would touch its text.
+            keyHandler.clear()
+            hideTooltip()
+            state = InputState.EmptyIgnoringPreviousState()
         }
 
         let result = keyHandler.handle(input: input, state: state) { newState in
