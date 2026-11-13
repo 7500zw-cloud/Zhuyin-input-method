@@ -57,7 +57,7 @@ struct ContextualWalkOptions {
   double rareReadingScore = -6.8;
   double rareReadingPenalty = -2.0;
   std::unordered_map<std::string, double> valueBonuses = {
-      {"試試", 1.5},
+      {"試試", 2.5},
       // 跟 alone (ㄍㄣ) or after a comma: 根 wins there because of 根據 and
       // 根本. Contexts such as 一根菸, 樹的根 and 兩根香蕉 keep 根.
       {"跟", 1.0},
