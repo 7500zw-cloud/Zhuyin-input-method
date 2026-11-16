@@ -286,6 +286,9 @@ ReadingGrid::WalkResult Walk(const ReadingGrid& grid, const ContextModel& model,
             continue;
           }
           double prior = options.unigramWeight * unigrams[k].score();
+          if (unigrams[k].score() == 0 && model.canRank(unigrams[k].value())) {
+            prior += options.userPhraseBonus;
+          }
           if (std::abs(unigrams[k].score() - options.rareReadingScore) < 1e-6) {
             prior += options.rareReadingPenalty;
           }

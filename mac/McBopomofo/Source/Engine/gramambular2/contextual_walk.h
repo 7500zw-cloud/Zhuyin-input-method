@@ -48,6 +48,12 @@ struct ContextualWalkOptions {
   // everyday typing (逝世 in biographies), so a colloquial homophone such as
   // 試試 loses even in 你用這個指令試試. The dictionary already ranks these
   // higher; the bonus keeps the models from overturning it without context.
+  // Added to user phrases, which McBopomofoLM gives a score of exactly 0
+  // (no dictionary entry has that score). A user phrase is the user saying
+  // "this is what I mean", so the models should not overturn it: with the
+  // word model, 走期 and 支影片 from the user's own list lost to 走棋 and
+  // 之影片.
+  double userPhraseBonus = 6.0;
   // Added to a unigram whose score is exactly `rareReadingScore`, the score
   // the dictionary gives a character's secondary reading (信 read ㄕㄣ, as in
   // 信 for 伸). The character model scores the character, not the reading, so
