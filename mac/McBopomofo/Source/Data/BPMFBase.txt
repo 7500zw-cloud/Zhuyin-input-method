@@ -7950,7 +7950,6 @@
 柧 ㄍㄨ gu ej big5
 鈲 ㄍㄨ gu ej big5
 軱 ㄍㄨ gu ej big5
-家 ㄍㄨ gu ej big5
 嫴 ㄍㄨ gu ej big5
 橭 ㄍㄨ gu ej big5
 㜾 ㄍㄨ gu ej utf8
